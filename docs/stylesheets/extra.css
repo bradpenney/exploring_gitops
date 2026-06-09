@@ -5,6 +5,12 @@
   margin: 0;
 }
 
+/* Center Mermaid diagrams */
+.mermaid {
+  display: flex;
+  justify-content: center;
+}
+
 /* Responsive image alignment: right on large, center on small */
 .img-responsive-right {
   display: block;

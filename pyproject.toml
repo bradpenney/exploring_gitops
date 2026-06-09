@@ -1,5 +1,5 @@
 [project]
-name = "exploring-software-development-tools"
+name = "exploring-gitops"
 version = "0.1.0"
 description = ""
 authors = [
@@ -8,12 +8,16 @@ authors = [
 readme = "README.md"
 requires-python = ">=3.11.12"
 dependencies = [
-    "mkdocs-material (>=9.6.14,<10.0.0)",
+    "mkdocs-material[imaging] (>=9.6.14,<10.0.0)",
     "mkdocs (>=1.6.1,<2.0.0)",
-    "pymdown-extensions (>=10.15,<11.0)"
+    "pymdown-extensions (>=10.15,<11.0)",
+    "mkdocs-htmlproofer-plugin (>=1.4.0,<2.0.0)",
+    "mkdocs-exclude (>=1.0.2,<2.0.0)",
+    "pillow (>=11.0.0,<12.0.0)",
 ]
 
 [tool.poetry]
+package-mode = false
 
 [tool.poetry.group.dev.dependencies]
 black = "^25.1.0"

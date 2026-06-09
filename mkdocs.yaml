@@ -1,14 +1,29 @@
-site_name: "Exploring Software Development Tools"
+site_name: "Exploring GitOps"
+site_url: https://gitops.bradpenney.io
+site_description: "GitOps and FluxCD: from understanding the paradigm to running production-grade continuous delivery in Kubernetes."
+site_author: Brad Penney
+
+extra:
+  analytics:
+    provider: google
+    property: G-V01MJ4R3SQ
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/bradpenney
+    - icon: fontawesome/brands/linkedin
+      link: https://linkedin.com/in/bradpenney
+
 extra_css:
   - stylesheets/extra.css
+
 theme:
   name: material
   palette:
     scheme: slate
     primary: black
     accent: amber
-  logo: images/exploring_software_development_tools.png
-  favicon: images/exploring_software_development_tools.png
+  logo: images/exploring_gitops.png
+  favicon: images/exploring_gitops.png
   icon:
     admonition:
       note: octicons/tag-16
@@ -25,10 +40,31 @@ theme:
       quote: octicons/quote-16
   features:
     - content.code.annotate
+    - content.code.copy
     - content.tabs.link
     - content.code.highlight
     - content.tooltips
     - content.code.mermaid
+
+plugins:
+  - search
+  - meta
+  - exclude:
+      glob:
+        - "essentials/*"
+        - "efficiency/*"
+        - "mastery/*"
+  - social:
+      cards: true
+      cards_layout_options:
+        background_color: "#1a202c"
+        color: "#cbd5e0"
+  - htmlproofer:
+      enabled: true
+      validate_rendered_template: true
+      validate_external_urls: false
+      raise_error: true
+      raise_error_after_finish: true
 
 markdown_extensions:
   - admonition
@@ -44,16 +80,50 @@ markdown_extensions:
         - name: mermaid
           class: mermaid
           format: !!python/name:pymdownx.superfences.fence_code_format
-  - pymdownx.tabbed
+  - pymdownx.tabbed:
+      alternate_style: true
   - pymdownx.highlight
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
   - attr_list
+  - md_in_html
 
 nav:
   - Home: index.md
-  - Git:
-    - Core Functionality:
-      - Introducing Git: git/core_functionality/intro_to_git.md
-#    - Next-Level Git:
-#    - Remotes and Collaboration:
-#    - Advanced Git:
-#  - JQ:
+
+  - 🏥 Day One - Understanding GitOps:
+      - Overview: day_one/overview.md
+      - What Is GitOps?: day_one/what_is_gitops.md
+      - Your Flux Workflow: day_one/your_flux_workflow.md
+      - Reading Flux Status: day_one/reading_flux_status.md
+      - Flux Resources Explained: day_one/flux_resources.md
+
+  # EDITORIAL NOTE: Content below is commented out pending quality review.
+  # Build in order: Essentials → Efficiency → Mastery.
+  # Uncomment articles ONE AT A TIME after thorough editorial vetting.
+
+  # 📦 Essentials - FluxCD for Platform Engineers
+  # - 📦 Essentials:
+  #     - Overview: essentials/overview.md
+  #     - Installing Flux: essentials/installing_flux.md
+  #     - Bootstrapping Flux: essentials/bootstrapping.md
+  #     - GitRepositories and Kustomizations: essentials/gitrepositories.md
+  #     - HelmReleases: essentials/helmreleases.md
+  #     - Image Automation: essentials/image_automation.md
+
+  # ⚡ Efficiency - Advanced FluxCD Workflows
+  # - ⚡ Efficiency:
+  #     - Overview: efficiency/overview.md
+  #     - Multi-Tenancy: efficiency/multi_tenancy.md
+  #     - Notification Controller: efficiency/notifications.md
+  #     - Monitoring Flux: efficiency/monitoring.md
+  #     - Progressive Delivery with Flagger: efficiency/progressive_delivery.md
+
+  # 🎯 Mastery - Production GitOps
+  # - 🎯 Mastery:
+  #     - Overview: mastery/overview.md
+  #     - Secrets Management with SOPS: mastery/secrets_sops.md
+  #     - Disaster Recovery: mastery/disaster_recovery.md
+  #     - Security Hardening: mastery/security.md
+  #     - Flux at Scale: mastery/flux_at_scale.md

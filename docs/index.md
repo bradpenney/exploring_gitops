@@ -1,20 +1,77 @@
-<img src="images/exploring_software_development_tools.png" alt="Exploring Software Development Tools" class="img-responsive-right" width="300">
+---
+title: "Exploring GitOps - FluxCD Guide"
+description: "A progressive guide to GitOps and FluxCD — from understanding the paradigm to running production-grade continuous delivery in Kubernetes."
+---
 
-# Welcome to Exploring Software Development Tools
+<img src="images/exploring_gitops.png" alt="Exploring GitOps" class="img-responsive-right" width="300">
 
-A subsection of [BradPenney.io](https://bradpenney.io), this is a friendly guide through the world of command-line magic and automation awesomeness! 🧰🚀
+# Welcome to Exploring GitOps
 
-This site is dedicated to documenting the best practices, quirks, and superpowers of tools like `git`, `jq`, `yq`, `make`, `gh` and other must-haves for developers who want to do more with less typing (and fewer headaches).
+GitOps is how modern platform teams ship software reliably, at scale, with a full audit trail baked in. Git becomes your deployment mechanism. Kubernetes reconciles toward whatever your repository declares. Nothing runs in your cluster that wasn't committed first.
 
-Whether you’re just getting started or you’ve been piping output into `/dev/null` for years, I hope you’ll find something here that’s helpful, insightful, or at least good for a smirk. 😄
+This site covers GitOps with **[FluxCD](https://fluxcd.io/flux/)** — a [CNCF Graduated project](https://www.cncf.io/projects/flux/) and the GitOps engine of choice for platform teams who want production-grade continuous delivery without the operational overhead.
 
-## Topics to Explore 🔍
+## Who Is This For?
 
-- Version control with `git` and helpful branching workflows 🌳
-- Slicing and dicing JSON and YAML with `jq` and `yq` 🪓
-- Automating builds and scripts with `make` ⚙️
-- Tips, tricks, and tiny CLI power moves ⚡
-- Real-world examples and shell-fu 🧠
+<div class="grid cards" markdown>
 
-Stick around — I’ll keep adding more tools, tutorials, and tangents.
-Thanks for visiting, and happy hacking! 👋
+-   :material-account: **Day One — Developers and New Team Members**
+
+    ---
+
+    Your platform team set up Flux and now deployments happen differently. You're not running `kubectl apply` anymore — you commit to Git and something else takes over.
+
+    **Day One explains the paradigm** so you can work confidently with a GitOps-enabled cluster.
+
+    [:octicons-arrow-right-16: Start with Day One](day_one/overview.md)
+
+-   :material-server: **Essentials — Platform Engineers Getting Started**
+
+    ---
+
+    You're responsible for setting up or maintaining a FluxCD deployment. You know Kubernetes, understand Helm, and now you need to wire it all together with GitOps.
+
+    **Essentials covers installing, bootstrapping, and the core Flux building blocks.**
+
+    *Coming soon*
+
+-   :material-lightning-bolt: **Efficiency — Platform Engineers Going Deeper**
+
+    ---
+
+    Flux is running. Now you need multi-tenancy, automated image updates, Slack notifications, and production monitoring.
+
+    **Efficiency covers the workflows that separate a working Flux install from a well-run one.**
+
+    *Coming soon*
+
+-   :material-trophy: **Mastery — Production GitOps**
+
+    ---
+
+    You're running Flux in production and need to handle secrets management, disaster recovery, security hardening, and scale.
+
+    **Mastery is for the platform engineers who own this in production.**
+
+    *Coming soon*
+
+</div>
+
+## Why FluxCD?
+
+FluxCD is a [CNCF Graduated project](https://www.cncf.io/projects/flux/) — the same tier as Kubernetes, Prometheus, and Helm. It's GitOps-native by design, runs entirely as Kubernetes controllers, and has no external control plane to manage.
+
+This site covers FluxCD exclusively. [ArgoCD](https://argo-cd.readthedocs.io/en/stable/) is a direct competitor — both are CNCF projects implementing the same GitOps principles, and the mental model transfers between them. The specific resources, commands, and workflows differ significantly. Flux earns its place for platform teams who want tight Kubernetes-native integration and minimal operational overhead; ArgoCD appeals to teams that want a built-in UI and a more opinionated workflow. This site won't cover ArgoCD.
+
+## The Site Structure
+
+Every section follows a progressive tier:
+
+| Tier | Audience | Tone |
+|------|----------|------|
+| **Day One** | Developers and new team members | Mentor-to-learner, builds understanding |
+| **Essentials** | Platform engineers, getting started | Peer-to-peer, no hand-holding |
+| **Efficiency** | Platform engineers, going deeper | Colleague-to-colleague, full context |
+| **Mastery** | Production owners | Colleague-to-colleague, unfiltered depth |
+
+Start where you are. The tiers are designed to be read in order within your level, but you can jump to what you need.
