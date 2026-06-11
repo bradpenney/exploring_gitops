@@ -7,11 +7,13 @@ description: "A progressive guide to GitOps and FluxCD — from understanding th
 
 # Welcome to Exploring GitOps
 
-GitOps is how modern platform teams ship software reliably, at scale, with a full audit trail baked in. Git becomes your deployment mechanism. Kubernetes reconciles toward whatever your repository declares. Nothing runs in your cluster that wasn't committed first.
+GitOps is how modern platform teams ship software reliably, at scale, with a full audit trail baked in. Your desired state is declared in version control, and Kubernetes continuously reconciles toward that declaration. Nothing runs in your cluster that wasn't committed first.
 
 This site covers GitOps with **[FluxCD](https://fluxcd.io/flux/)** — a [CNCF Graduated project](https://www.cncf.io/projects/flux/) and the GitOps engine of choice for platform teams who want production-grade continuous delivery without the operational overhead.
 
 ## Who Is This For?
+
+Start where you are. The tiers build in order, but jump to whatever you need.
 
 <div class="grid cards" markdown>
 
@@ -39,7 +41,7 @@ This site covers GitOps with **[FluxCD](https://fluxcd.io/flux/)** — a [CNCF G
 
     ---
 
-    Flux is running. Now you need multi-tenancy, automated image updates, Slack notifications, and production monitoring.
+    Flux is running. Now you need automated image updates, progressive delivery, deployment notifications, and monitoring Flux in production.
 
     **Efficiency covers the workflows that separate a working Flux install from a well-run one.**
 
@@ -49,7 +51,7 @@ This site covers GitOps with **[FluxCD](https://fluxcd.io/flux/)** — a [CNCF G
 
     ---
 
-    You're running Flux in production and need to handle secrets management, disaster recovery, security hardening, and scale.
+    You're running Flux in production and need to promote immutable artifacts across environments, source secrets via External Secrets, sign and verify what you ship, and run Flux at scale.
 
     **Mastery is for the platform engineers who own this in production.**
 
@@ -61,17 +63,6 @@ This site covers GitOps with **[FluxCD](https://fluxcd.io/flux/)** — a [CNCF G
 
 FluxCD is a [CNCF Graduated project](https://www.cncf.io/projects/flux/) — the same tier as Kubernetes, Prometheus, and Helm. It's GitOps-native by design, runs entirely as Kubernetes controllers, and has no external control plane to manage.
 
-This site covers FluxCD exclusively. [ArgoCD](https://argo-cd.readthedocs.io/en/stable/) is a direct competitor — both are CNCF projects implementing the same GitOps principles, and the mental model transfers between them. The specific resources, commands, and workflows differ significantly. Flux earns its place for platform teams who want tight Kubernetes-native integration and minimal operational overhead; ArgoCD appeals to teams that want a built-in UI and a more opinionated workflow. This site won't cover ArgoCD.
+!!! info "GitOps Is More Than FluxCD"
+    This site covers FluxCD exclusively, but Flux isn't the only GitOps tool. [ArgoCD](https://argo-cd.readthedocs.io/en/stable/) is a direct competitor — both are CNCF projects implementing the same GitOps principles, and the mental model transfers between them. The specific resources, commands, and workflows differ significantly. Flux earns its place for platform teams who want tight Kubernetes-native integration and minimal operational overhead; ArgoCD appeals to teams that want a built-in UI and a more opinionated workflow. This site won't cover ArgoCD.
 
-## The Site Structure
-
-Every section follows a progressive tier:
-
-| Tier | Audience | Tone |
-|------|----------|------|
-| **Day One** | Developers and new team members | Mentor-to-learner, builds understanding |
-| **Essentials** | Platform engineers, getting started | Peer-to-peer, no hand-holding |
-| **Efficiency** | Platform engineers, going deeper | Colleague-to-colleague, full context |
-| **Mastery** | Production owners | Colleague-to-colleague, unfiltered depth |
-
-Start where you are. The tiers are designed to be read in order within your level, but you can jump to what you need.

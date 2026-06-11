@@ -6,11 +6,11 @@ description: "The kubectl commands that tell you whether Flux reconciled your ch
 # Reading Flux Status
 
 !!! tip "Part of Day One: Understanding GitOps"
-    This article follows [Your Flux Workflow](your_flux_workflow.md). You've merged a PR — now you need to know if Flux picked it up and applied it.
+    This article follows [Your Flux Workflow](your_flux_workflow.md). You've merged a PR and it's been released as a new artifact — now you need to know if Flux picked it up and applied it.
 
-You merged the PR ten minutes ago. The cluster should be running your new version, but you're not certain. You need to know: **did Flux reconcile, and did it succeed?**
+You merged the PR, a release was cut, and CI pushed a new artifact ten minutes ago. In **dev or staging**, where Flux tracks a semver range, the cluster should now be running it automatically. **Production is different** — it pins a specific version and only moves when someone promotes it, so a fresh artifact won't deploy there on its own. Either way, the question is the same: **did Flux reconcile the artifact it's tracking, and did it succeed?**
 
-Flux surfaces its status on its source resources (`OCIRepository` or `GitRepository`), its reconciler resources (`Kustomization`, `HelmRelease`), and that whole chain has to be healthy for your change to be live. You check them with [`kubectl`](https://k8s.bradpenney.io/day_one/kubectl/commands/) — the same tool you've been using for everything else in the cluster.
+Flux surfaces its status on its source resource (the `OCIRepository`) and its reconciler resources (`Kustomization`, `HelmRelease`), and that whole chain has to be healthy for your change to be live. You check them with [`kubectl`](https://k8s.bradpenney.io/day_one/kubectl/commands/) — the same tool you've been using for everything else in the cluster.
 
 !!! info "What You'll Learn"
     - The Flux resources to check and what each one tells you
@@ -24,28 +24,26 @@ Flux surfaces its status on its source resources (`OCIRepository` or `GitReposit
 
 ```mermaid
 flowchart TD
-    OCIRepo["OCIRepository\nIs Flux fetching the artifact?\n(enterprise app deployments)"]
-    GitRepo["GitRepository\nIs Flux fetching commits?\n(Flux bootstrap / cluster infra)"]
-    Kustomization["Kustomization\nAre your manifests being applied?"]
-    HelmRelease["HelmRelease\nAre your Helm releases reconciling?"]
+    OCIRepo["OCIRepository<br/>Is Flux fetching the artifact?"]
+    Kustomization["Kustomization<br/>Are your manifests being applied?"]
+    HelmRelease["HelmRelease<br/>Are your Helm releases reconciling?"]
 
     OCIRepo -->|"artifact fetched"| Kustomization
     OCIRepo -->|"artifact fetched"| HelmRelease
-    GitRepo -->|"source fetched"| Kustomization
-    GitRepo -->|"source fetched"| HelmRelease
 
     style OCIRepo fill:#2f855a,stroke:#cbd5e0,stroke-width:2px,color:#fff
-    style GitRepo fill:#2d3748,stroke:#cbd5e0,stroke-width:2px,color:#fff
     style Kustomization fill:#4a5568,stroke:#cbd5e0,stroke-width:2px,color:#fff
     style HelmRelease fill:#4a5568,stroke:#cbd5e0,stroke-width:2px,color:#fff
 ```
 
-- **[`OCIRepository`](https://fluxcd.io/flux/components/source/ocirepositories/)** — the enterprise source type. Tells you whether Flux can reach your artifact registry and is fetching the correct versioned artifact. **Check this first for app deployments.**
-- **[`GitRepository`](https://fluxcd.io/flux/components/source/)** — used for Flux's own bootstrap config and cluster infrastructure. If this isn't healthy, Flux itself may not reconcile.
+- **[`OCIRepository`](https://fluxcd.io/flux/components/source/ocirepositories/)** — the source Flux uses for everything on this site. Tells you whether Flux can reach your artifact registry and is fetching the correct versioned artifact. **Check this first.**
 - **[`Kustomization`](https://fluxcd.io/flux/components/kustomize/)** — tells you whether your plain YAML or Kustomize manifests have been applied to the cluster.
 - **[`HelmRelease`](https://fluxcd.io/flux/components/helm/)** — tells you whether a Helm release has been installed or upgraded successfully.
 
 Your platform team controls which sources and reconcilers are set up — you may have one `Kustomization` per app or one per environment. Ask them which resources correspond to your application.
+
+!!! note "What about `GitRepository`?"
+    Flux can also watch a Git repository directly via a `GitRepository` source. You may see one in a cluster, but this site delivers everything — apps *and* infrastructure — as OCI artifacts, and doesn't recommend Git-forge watching for delivery. [Your Flux Workflow](your_flux_workflow.md) explains why.
 
 ---
 
@@ -53,9 +51,12 @@ Your platform team controls which sources and reconcilers are set up — you may
 
 These commands cover the majority of what you'll need day-to-day. Flux resources typically live in the `flux-system` namespace.
 
-<div class="grid cards" markdown>
+!!! note "You May Not Have Access"
+    Your platform team may use standard Kubernetes RBAC to limit who can read Flux resources — especially in the `flux-system` namespace. If a `kubectl get` here returns a `Forbidden` error, that's expected, not broken: ask your platform team for read access, or for the namespace where your app's resources live.
 
--   :material-package-registry: **OCIRepository Status**
+<div class="grid cards single-col" markdown>
+
+-   :material-cube-outline: **OCIRepository Status**
 
     ---
 
@@ -70,35 +71,20 @@ These commands cover the majority of what you'll need day-to-day. Flux resources
 
     **What to look for:** `READY: True` and a version matching what CI just pushed (`v2.1.0`). If `READY: False`, Flux can't reach the registry or no artifact satisfies the semver policy — a platform team call.
 
--   :material-source-branch: **GitRepository Status**
-
-    ---
-
-    **Why it matters:** `GitRepository` sources are used for Flux's own bootstrap config and cluster infrastructure. If this isn't healthy, Flux itself may have trouble reconciling infrastructure changes. Less relevant for your day-to-day app deployments.
-
-    ```bash title="Check GitRepository status"
-    kubectl get gitrepository -n flux-system
-    # NAME          READY   STATUS                               AGE
-    # flux-system   True    stored artifact for                  2d
-    #                       revision: main@sha1:abc123def456
-    ```
-
-    **What to look for:** `READY: True` and a revision matching the expected commit. If `READY: False`, Flux can't reach the repo — usually an auth problem or a network issue. That's a platform team call, not yours.
-
 -   :material-file-code: **Kustomization Status**
 
     ---
 
-    **Why it matters:** This tells you whether your YAML manifests have been applied to the cluster and whether they're in sync with Git.
+    **Why it matters:** This tells you whether your manifests have been applied to the cluster and whether they're in sync with the source Flux is tracking.
 
     ```bash title="Check Kustomization status"
     kubectl get kustomization -n flux-system
-    # NAME              READY   STATUS                              AGE
-    # apps              True    Applied revision: main@sha1:abc     2d
-    # infrastructure    True    Applied revision: main@sha1:abc     2d
+    # NAME              READY   STATUS                                       AGE
+    # apps              True    Applied revision: v2.1.0@sha256:abc123       2d
+    # infrastructure    True    Applied revision: v3.0.1@sha256:def456       5d
     ```
 
-    **What to look for:** `READY: True` and an `Applied revision` that matches your commit hash. `READY: False` means something in the manifests failed to apply.
+    **What to look for:** `READY: True` and an `Applied revision` whose tag matches the artifact version you released (`v2.1.0`). `READY: False` means something failed to apply.
 
 -   :material-package-variant: **HelmRelease Status**
 
@@ -133,7 +119,7 @@ The important section is **Conditions** near the bottom of the output.
 ```bash title="Conditions output — healthy"
 Conditions:
   Last Transition Time:   2026-06-08T14:30:00Z
-  Message:                Applied revision: main@sha1:abc123def456
+  Message:                Applied revision: v2.1.0@sha256:abc123def456
   Reason:                 ReconciliationSucceeded
   Status:                 True
   Type:                   Ready
@@ -162,14 +148,14 @@ The `Message` field is where the actual error lives. In this example, a Service 
     **What you see:**
 
     ```bash title="All resources ready"
-    kubectl get gitrepository,kustomization -n flux-system
+    kubectl get ocirepository,kustomization -n flux-system
     # NAME                              READY   STATUS
-    # gitrepository/flux-system         True    stored artifact for revision: main@sha1:abc123
-    # kustomization/apps                True    Applied revision: main@sha1:abc123
-    # kustomization/infrastructure      True    Applied revision: main@sha1:abc123
+    # ocirepository/my-app              True    stored artifact for v2.1.0
+    # kustomization/apps                True    Applied revision: v2.1.0@sha256:abc123
+    # kustomization/infrastructure      True    Applied revision: v3.0.1@sha256:def456
     ```
 
-    **What it means:** Flux fetched your commit and applied the manifests. Your change is live. Verify by checking the actual Kubernetes resource directly:
+    **What it means:** Flux fetched the artifact and applied the manifests. Your change is live. Verify by checking the actual Kubernetes resource directly:
 
     ```bash title="Verify the Deployment updated"
     kubectl get deployment my-app -n production
@@ -177,22 +163,22 @@ The `Message` field is where the actual error lives. In this example, a Service 
     # my-app   3/3     3            3           14d
 
     kubectl describe deployment my-app -n production | grep Image
-    # Image:  registry.company.com/my-app:v2.1.0   ← Your new version
+    # Image:  registry.company.com/my-app:v4.7.0   ← image declared by artifact v2.1.0
     ```
 
 === ":material-clock-outline: Pending — Not Reconciled Yet"
 
     **What you see:**
 
-    ```bash title="Status still shows old revision"
+    ```bash title="Reconciliation still in progress"
     kubectl get kustomization apps -n flux-system
-    # NAME   READY   STATUS                              AGE
-    # apps   True    Applied revision: main@sha1:old123
+    # NAME   READY     STATUS                       AGE
+    # apps   Unknown   Reconciliation in progress   2d
     ```
 
-    The status shows your *previous* commit hash, not your latest one.
+    `READY: Unknown` means Flux is mid-reconcile — fetching or applying the new artifact. (If instead it shows `READY: True` but the `Applied revision` is still your *previous* version, Flux simply hasn't polled the registry yet — there, the revision, not `READY`, is the tell.)
 
-    **What it means:** Flux hasn't polled since your merge. The default interval is 1-5 minutes. Wait and check again. If it hasn't updated after 10 minutes, check the `GitRepository` status — Flux may not be reaching your repo.
+    **What it means:** give it time. The default poll interval is 1-5 minutes. Wait and check again. If it's still not done after 10 minutes, check the `OCIRepository` status — Flux may not be reaching the registry.
 
 === ":material-alert: Reconciliation Failed"
 
@@ -220,7 +206,7 @@ The `Message` field is where the actual error lives. In this example, a Service 
 
     The fix: find the error in your manifests, correct the YAML, open a PR.
 
-=== ":material-package-registry: OCIRepository Not Ready"
+=== ":material-cube-outline: OCIRepository Not Ready"
 
     **What you see:**
 
@@ -237,20 +223,6 @@ The `Message` field is where the actual error lives. In this example, a Service 
     - Network policy blocking Flux from reaching the registry
 
     Run `kubectl describe ocirepository my-app -n flux-system` and read the `Message` field to identify which case it is. If it's a credentials or network issue, hand it to the platform team. If CI failed to push, check your CI pipeline.
-
-=== ":material-git: GitRepository Not Ready"
-
-    **What you see:**
-
-    ```bash title="GitRepository not fetching"
-    kubectl get gitrepository -n flux-system
-    # NAME          READY   STATUS                                  AGE
-    # flux-system   False   failed to checkout and determine...     2d
-    ```
-
-    **What it means:** Flux cannot reach or authenticate to your Git repo. This `GitRepository` resource is typically used for Flux's own cluster-bootstrap config — not your app. This is almost always a platform team problem — an SSH key expired, a token was rotated, or a network policy changed.
-
-    Run `kubectl describe gitrepository flux-system -n flux-system` and note the full error message to help them diagnose it. Then hand it off — this isn't something a Day One developer fixes.
 
 ---
 
@@ -282,22 +254,22 @@ The `Message` field is where the actual error lives. In this example, a Service 
         3. Fix the YAML, open a new PR
 
 ??? question "Exercise 2: Is My Change Live?"
-    You merged a PR 3 minutes ago that updated `my-app` from `v1.5.0` to `v1.6.0`. You run:
+    You released `my-app` artifact `v1.6.0` 3 minutes ago (up from `v1.5.0`). You run:
 
     ```
     kubectl get kustomization apps -n flux-system
-    NAME   READY   STATUS                              AGE
-    apps   True    Applied revision: main@sha1:abc789
+    NAME   READY   STATUS                                       AGE
+    apps   True    Applied revision: v1.5.0@sha256:abc789
     ```
 
-    You check your repo and your commit hash is `def456`. **Has your change applied?**
+    **Has your change applied?**
 
     ??? tip "Solution"
-        **Not yet.** The revision `abc789` in the Flux status is the commit *before* yours (`def456`). Flux hasn't polled since your merge.
+        **Not yet.** The applied revision is still `v1.5.0` — the version *before* the one you released (`v1.6.0`). Flux hasn't pulled the new artifact yet.
 
-        Wait another minute or two and check again. If Flux polls successfully, the status will update to show `def456` and `READY: True`.
+        Wait another minute or two and check again. Once Flux's `OCIRepository` polls and fetches `v1.6.0`, the Kustomization's applied revision updates to `v1.6.0@sha256:...` and `READY: True`.
 
-        If it still shows the old revision after 5-10 minutes, check the `GitRepository` status — Flux may not be fetching new commits.
+        If it still shows `v1.5.0` after 5-10 minutes, check the `OCIRepository` status — Flux may not be reaching the registry.
 
 ??? question "Exercise 3: Where's the Error?"
     `kubectl get kustomization apps -n flux-system` shows `READY: False`. What's your next command, and what part of the output do you read?
@@ -318,7 +290,6 @@ The `Message` field is where the actual error lives. In this example, a Service 
 | Resource | Namespace | What It Tells You |
 |----------|-----------|------------------|
 | `OCIRepository` | `flux-system` | Is Flux fetching the versioned artifact from the registry? |
-| `GitRepository` | `flux-system` | Is Flux fetching Flux's own bootstrap config from Git? |
 | `Kustomization` | `flux-system` | Are manifests being applied? |
 | `HelmRelease` | your app's namespace | Is the Helm release reconciling? |
 
@@ -327,7 +298,6 @@ The `Message` field is where the actual error lives. In this example, a Service 
 | `kubectl get ocirepository -n flux-system` | First check — is Flux fetching my app's artifact? |
 | `kubectl get kustomization -n flux-system` | Are manifests being applied from the artifact? |
 | `kubectl describe kustomization <name> -n flux-system` | Full error message when READY is False |
-| `kubectl get gitrepository -n flux-system` | When Flux's cluster-bootstrap config isn't reconciling |
 | `kubectl get helmrelease -n <namespace>` | For Helm-deployed apps |
 
 ---

@@ -1,6 +1,6 @@
 ---
 title: "Flux Resources: What You'll See in the Cluster"
-description: "A plain-language reference for the Flux custom resources developers encounter — OCIRepository, Kustomization, HelmRelease, and GitRepository explained without the platform-engineer setup detail."
+description: "A plain-language reference to the Flux resources developers meet in a cluster: OCIRepository, Kustomization, HelmRelease, and GitRepository explained."
 ---
 
 # Flux Resources: What You'll See in the Cluster
@@ -83,8 +83,8 @@ Most applications have one `Kustomization` per environment (or per app). Your pl
 ```bash title="Check Kustomization status"
 kubectl get kustomization -n flux-system
 # NAME              READY   STATUS                                 AGE
-# my-app            True    Applied revision: v1.2.3/sha256:abc   2d
-# infrastructure    True    Applied revision: v2.0.1/sha256:def   5d
+# my-app            True    Applied revision: v1.2.3@sha256:abc   2d
+# infrastructure    True    Applied revision: v3.0.1@sha256:def   5d
 ```
 
 **Fields to read:**
@@ -133,17 +133,7 @@ Common failure causes: chart not found, values validation errors, or a Helm hook
 
 ## GitRepository
 
-A `GitRepository` is a Flux source that watches a Git repository for commits. Your platform team uses this for Flux's own bootstrap configuration and cluster infrastructure — the YAML that defines how Flux itself is set up.
-
-In enterprise GitOps, application deployments use `OCIRepository` sources, not `GitRepository`. You're unlikely to interact with `GitRepository` resources for your application — but you'll see them when you run `kubectl get gitrepository -n flux-system`.
-
-```bash title="Check GitRepository status"
-kubectl get gitrepository -n flux-system
-# NAME          READY   STATUS                                        AGE
-# flux-system   True    stored artifact for revision: main@sha1:abc   5d
-```
-
-If this is `READY: False`, Flux can't reach the Git repository that holds its own configuration. That's a platform team problem — not something a developer fixes.
+Flux can also watch a Git repository directly via a `GitRepository` source. You may see one in a cluster, but this site delivers everything — applications *and* infrastructure — as versioned OCI artifacts, and doesn't recommend Git-forge watching for delivery. [Your Flux Workflow](your_flux_workflow.md) explains the reasoning.
 
 ---
 
@@ -153,13 +143,13 @@ Here's how these resources connect for a typical application deployment:
 
 ```mermaid
 flowchart LR
-    Registry["Enterprise Registry\n(Harbor / ECR / Artifactory)"]
-    OCIRepo["OCIRepository\n(source)"]
-    Kustomization["Kustomization\n(reconciler)"]
-    HelmRelease["HelmRelease\n(reconciler)"]
+    Registry["Enterprise Registry<br/>(Harbor / ECR / Artifactory)"]
+    OCIRepo["OCIRepository<br/>(source)"]
+    Kustomization["Kustomization<br/>(reconciler)"]
+    HelmRelease["HelmRelease<br/>(reconciler)"]
     Cluster["Kubernetes Cluster"]
 
-    Registry -->|"Flux polls for\nnew semver tags"| OCIRepo
+    Registry -->|"Flux polls for<br/>new semver tags"| OCIRepo
     OCIRepo -->|"artifact available"| Kustomization
     OCIRepo -->|"artifact available"| HelmRelease
     Kustomization -->|"applies manifests"| Cluster
@@ -179,7 +169,6 @@ flowchart LR
 | Resource | Type | What It Does |
 |----------|------|-------------|
 | `OCIRepository` | Source | Watches an artifact registry for new semver-tagged artifacts |
-| `GitRepository` | Source | Watches a Git repo for commits (Flux bootstrap/infra only) |
 | `Kustomization` | Reconciler | Applies Kubernetes manifests from a source to the cluster |
 | `HelmRelease` | Reconciler | Manages a Helm release declaratively from a source |
 

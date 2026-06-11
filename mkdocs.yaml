@@ -110,20 +110,23 @@ nav:
   #     - Bootstrapping Flux: essentials/bootstrapping.md
   #     - GitRepositories and Kustomizations: essentials/gitrepositories.md
   #     - HelmReleases: essentials/helmreleases.md
-  #     - Image Automation: essentials/image_automation.md
 
   # ⚡ Efficiency - Advanced FluxCD Workflows
   # - ⚡ Efficiency:
   #     - Overview: efficiency/overview.md
-  #     - Multi-Tenancy: efficiency/multi_tenancy.md
   #     - Notification Controller: efficiency/notifications.md
+  #     - Image Automation: efficiency/image_automation.md
+  #     - Dependency Ordering and Health Gates: efficiency/dependencies.md
   #     - Monitoring Flux: efficiency/monitoring.md
-  #     - Progressive Delivery with Flagger: efficiency/progressive_delivery.md
 
   # 🎯 Mastery - Production GitOps
   # - 🎯 Mastery:
   #     - Overview: mastery/overview.md
-  #     - Secrets Management with SOPS: mastery/secrets_sops.md
+  #     - Secrets with External Secrets: mastery/secrets_external_secrets.md
+  #     - Environment Promotion: mastery/environment_promotion.md
+  #     - Building and Signing OCI Artifacts: mastery/signing_artifacts.md
+  #     - Security and Tenant Isolation: mastery/security.md
+  #     - Progressive Delivery with Flagger: mastery/progressive_delivery.md
+  #     - Observability and SLOs: mastery/observability.md
   #     - Disaster Recovery: mastery/disaster_recovery.md
-  #     - Security Hardening: mastery/security.md
   #     - Flux at Scale: mastery/flux_at_scale.md

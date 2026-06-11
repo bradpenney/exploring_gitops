@@ -5,6 +5,12 @@
   margin: 0;
 }
 
+/* Opt-in: force a single column for card grids with wide content (e.g. code blocks),
+   where the default multi-column layout would overflow. Add class "single-col". */
+.md-typeset .grid.cards.single-col {
+  grid-template-columns: 1fr !important;
+}
+
 /* Center Mermaid diagrams */
 .mermaid {
   display: flex;

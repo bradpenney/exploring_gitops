@@ -23,23 +23,23 @@ Day One explains the paradigm and gives you the vocabulary to work confidently i
 
     **[Reading Flux Status](reading_flux_status.md) covers this.**
 
-=== ":material-alert: Something Looks Wrong in the Cluster"
+=== ":material-file-tree: I'm Seeing Resources I Don't Recognize"
 
-    Your app isn't running the version you committed — or it's not running at all.
+    `kubectl get` is showing resource types — `OCIRepository`, `Kustomization`, `HelmRelease` — that don't exist in a standard cluster.
 
-    - Flux surfaces errors on its own resources (`OCIRepository`, `Kustomization`, `HelmRelease`)
-    - `kubectl describe kustomization <name>` tells you why reconciliation failed
-    - Most failures are YAML errors, image pull failures, or a bad semver constraint — not Flux itself
+    - These are Flux's own custom resources, each managing part of the delivery pipeline
+    - A *source* fetches content from a registry; a *reconciler* applies it to the cluster
+    - Knowing what each one represents is the first step to working in a Flux-managed cluster
 
-    **[Reading Flux Status](reading_flux_status.md) covers this.**
+    **[Flux Resources Explained](flux_resources.md) covers this.**
 
 === ":material-help: My Team Said 'Just Commit Your Change'"
 
     You need to ship a feature, fix a bug, or adjust a config value.
 
-    - Your commit triggers CI, which builds a versioned OCI artifact and pushes it to the artifact registry
-    - Flux detects the new version and applies it to the cluster
-    - You don't touch `kubectl` or [Helm](https://k8s.bradpenney.io/day_one/helm/commands/) directly
+    - Your commit triggers CI, which builds a *semantically versioned* OCI artifact (e.g. `v2.3.1`) — never an untagged "latest"
+    - Flux deploys the specific versions it's told to; production is pinned to tested versions and doesn't chase the newest build
+    - You don't touch `kubectl` or [Helm](https://k8s.bradpenney.io/day_one/helm/commands/) directly — but "merged" isn't "live in prod" until that version is promoted
 
     **[Your Flux Workflow](your_flux_workflow.md) covers this.**
 
