@@ -1,5 +1,5 @@
 ---
-title: "Exploring GitOps - FluxCD Guide"
+title: "Exploring GitOps - FluxCD Continuous Delivery Guide"
 description: "A progressive guide to GitOps and FluxCD — from understanding the paradigm to running production-grade continuous delivery in Kubernetes."
 ---
 

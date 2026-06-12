@@ -51,6 +51,14 @@ Your platform team controls which sources and reconcilers are set up — you may
 
 These commands cover the majority of what you'll need day-to-day. Flux resources typically live in the `flux-system` namespace.
 
+!!! tip "Friendlier tools than raw `kubectl`"
+    Everything below uses `kubectl` because it's always present. Two tools make Flux status easier to read if you have them:
+
+    - The [`flux` CLI](https://fluxcd.io/flux/cmd/) — `flux get kustomizations`, `flux get sources oci`, and `flux reconcile` give you the same information (and a manual sync) with friendlier output.
+    - [**flux9s**](https://flux9s.ca/) — a [k9s](https://k9scli.io/)-inspired terminal UI that watches your Flux resources live: reconciliation state, YAML, ownership traces, and history, all navigable with k9s-style keystrokes. If you live in the terminal and want an at-a-glance answer to "did my change land?", it's worth installing ([source](https://github.com/dgunzy/flux9s), Rust, Apache-2.0).
+
+    Use whichever you have — `kubectl` always works.
+
 !!! note "You May Not Have Access"
     Your platform team may use standard Kubernetes RBAC to limit who can read Flux resources — especially in the `flux-system` namespace. If a `kubectl get` here returns a `Forbidden` error, that's expected, not broken: ask your platform team for read access, or for the namespace where your app's resources live.
 
@@ -178,7 +186,7 @@ The `Message` field is where the actual error lives. In this example, a Service 
 
     `READY: Unknown` means Flux is mid-reconcile — fetching or applying the new artifact. (If instead it shows `READY: True` but the `Applied revision` is still your *previous* version, Flux simply hasn't polled the registry yet — there, the revision, not `READY`, is the tell.)
 
-    **What it means:** give it time. The default poll interval is 1-5 minutes. Wait and check again. If it's still not done after 10 minutes, check the `OCIRepository` status — Flux may not be reaching the registry.
+    **What it means:** give it time. The default poll interval is 1-5 minutes. Wait and check again — or, if you can't wait, your platform team can force an immediate sync with `flux reconcile source oci my-app` rather than waiting for the next poll. If it's still not done after 10 minutes, check the `OCIRepository` status — Flux may not be reaching the registry.
 
 === ":material-alert: Reconciliation Failed"
 
@@ -302,14 +310,13 @@ The `Message` field is where the actual error lives. In this example, a Service 
 
 ---
 
-## You've Completed Day One
+## What's Next
 
-You understand:
+You can now read whether a deployment landed. Along the way you've been running `kubectl get` against resource types — `OCIRepository`, `Kustomization`, `HelmRelease` — that don't exist in a standard cluster. The last Day One article explains exactly what each one is:
 
-- **What GitOps is** — Git as the source of truth, continuous reconciliation
-- **What FluxCD is** — the controller that implements GitOps for Kubernetes
-- **Your workflow** — commit your code, CI builds the versioned OCI artifact, Flux applies it
-- **How to check status** — whether your changes actually applied
+- **[Flux Resources Explained](flux_resources.md)** — a plain-language tour of the Flux resources you'll meet in the cluster, and how to read each at a glance.
+
+Once you've read that, you'll have the full Day One picture: what GitOps is, your role in the pipeline, how to verify your changes landed, and what every Flux resource in your cluster is doing.
 
 If you're responsible for *setting up* or *managing* Flux — installing it, configuring `OCIRepository` sources, managing secrets — that's the **Essentials** section. That's platform engineer territory.
 
@@ -329,6 +336,7 @@ If you're responsible for *setting up* or *managing* Flux — installing it, con
 
 ### Related Articles
 
+- [Flux Resources Explained](flux_resources.md) — what the `OCIRepository`, `Kustomization`, and `HelmRelease` resources you just queried actually are
 - [Your Flux Workflow](your_flux_workflow.md) — making changes through GitOps
 - [What Is GitOps?](what_is_gitops.md) — the paradigm behind what you just learned
 - [Day One Overview](overview.md) — the full Day One learning path

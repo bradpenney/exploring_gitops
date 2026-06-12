@@ -1,5 +1,5 @@
 ---
-title: "Your Flux Workflow: Commit, Build, Deploy"
+title: "Your Flux Workflow: Commit, Build, Publish"
 description: "How enterprise GitOps works: your CI pipeline builds a versioned OCI artifact, Flux reads it from your artifact registry, and your cluster reconciles."
 ---
 
@@ -127,33 +127,51 @@ Flux watches the manifest artifact via an [`OCIRepository`](https://fluxcd.io/fl
 In an enterprise GitOps environment, your workflow is deliberately minimal:
 
 ```mermaid
-flowchart LR
-    Write["Write code<br/>or config change"]
-    PR["Open a PR<br/>in your app repo"]
-    Review["Teammate reviews<br/>and approves"]
-    Merge["Merge to main"]
-    Done["Release cut; CI builds<br/>and publishes the artifact"]
+flowchart TD
+    Write["Write code"]
+    PRa["PR in your app repo"]
+    Mergea["Merge → CI builds<br/>image v4.7.1"]
+    Edit["Bump the image tag in the<br/>config repo: v4.7.0 → v4.7.1"]
+    PRc["PR in the config repo"]
+    Mergec["Merge → CI pushes OCI artifact<br/>v1.2.4 to the prod folder"]
+    Deploy["SRE deploys v1.2.4<br/>to production"]
 
-    Write --> PR --> Review --> Merge --> Done
+    Write --> PRa --> Mergea --> Edit --> PRc --> Mergec --> Deploy
 
     style Write fill:#2d3748,stroke:#cbd5e0,stroke-width:2px,color:#fff
-    style PR fill:#2d3748,stroke:#cbd5e0,stroke-width:2px,color:#fff
-    style Review fill:#4a5568,stroke:#cbd5e0,stroke-width:2px,color:#fff
-    style Merge fill:#4a5568,stroke:#cbd5e0,stroke-width:2px,color:#fff
-    style Done fill:#2f855a,stroke:#cbd5e0,stroke-width:2px,color:#fff
+    style PRa fill:#2d3748,stroke:#cbd5e0,stroke-width:2px,color:#fff
+    style Mergea fill:#4a5568,stroke:#cbd5e0,stroke-width:2px,color:#fff
+    style Edit fill:#2d3748,stroke:#cbd5e0,stroke-width:2px,color:#fff
+    style PRc fill:#2d3748,stroke:#cbd5e0,stroke-width:2px,color:#fff
+    style Mergec fill:#4a5568,stroke:#cbd5e0,stroke-width:2px,color:#fff
+    style Deploy fill:#2f855a,stroke:#cbd5e0,stroke-width:2px,color:#fff
 ```
+
+Two repos, two PRs — but it's all the same kind of work: edit, open a PR, get it reviewed, merge. You bump the image tag in the config repo by hand, and its release flow pushes the new OCI artifact into the **production folder** of the registry.
+
+Concretely, that "bump" is usually a one-line change to a manifest:
+
+```diff title="The change you make in the config repo (deployment.yaml)" linenums="1"
+       containers:
+         - name: my-app
+-          image: registry.company.com/my-app:v4.7.0
++          image: registry.company.com/my-app:v4.7.1
+```
+
+PR it, get it reviewed, merge — and the config repo's release flow turns that diff into OCI artifact `v1.2.4`. That single line is often the entire developer-facing change.
+
+That push is the edge of your authority. You hold **push-only** rights to the prod folder: you can publish a new OCI image into it, but you cannot change, delete, or reconfigure anything that's already there — and you cannot deploy it. An **SRE deploys** by advancing the version production's Flux is pinned to: production's `OCIRepository` watches that prod folder but stays fixed on one tested tag until the SRE moves the pin (see [Flux Resources Explained](flux_resources.md)).
 
 You do not:
 
 - Push to the cluster directly
-- Edit image tags in a config repo
-- Trigger deployments manually
-- Touch the OCI artifact or the registry
+- Deploy or promote anything to production yourself
+- Change, delete, or reconfigure existing artifacts in the prod folder
 
-Your CI pipeline does all of that. **Your job ends at the merge.**
+What you touch in the registry is narrow: you push new OCI images into the prod folder, nothing more. **Your job ends when the config-repo change is merged and the artifact lands in the registry.**
 
 !!! note "Who Ships It to Production? (Segregation of Duties)"
-    Your merge builds and publishes the artifact, and lower environments like dev and staging may reconcile to it automatically. Promoting it to **production**, though, is usually a *different person's* job — a release manager or the on-call SRE (site reliability engineer) advances the version Flux deploys to prod. The developer who wrote the change doesn't ship it there themselves. That separation is **segregation of duties**: a standard enterprise control, and often a compliance requirement.
+    Publishing an artifact and deploying it are two different rights. Your release pushes a new OCI image into the production folder of the registry — but you hold **push-only** access there. Advancing the version production's Flux actually deploys is the **SRE's** (site reliability engineer's) job. The developer who wrote the change can make the new version *available*, but doesn't *ship* it. That split — publish vs. deploy — is **segregation of duties**: a standard enterprise control, and often a compliance requirement.
 
 !!! tip "Where Do the Manifests Live?"
     We recommend **two repositories**: your **application repo** (the code) and a separate **GitOps config repo** (your Kubernetes manifests and Flux definitions). Keeping them apart means one config repo can bundle the manifests for *several* microservices, and config changes follow their own PR and release flow — independent of any single app's code. Releasing from the config repo is what produces the next versioned OCI manifest artifact.
@@ -201,7 +219,7 @@ Either way: you don't reach for `kubectl rollout undo`. The artifact registry is
     **Trace the full pipeline from merge to cluster update. What produces the new OCI artifact? What does it contain? How does Flux detect it?**
 
     ??? tip "Solution"
-        1. **PR merges** to `main` in the application repo
+        1. **PR merges** to `main` in the **GitOps config repo** — a ConfigMap is a manifest, so it lives there, not in the application repo
         2. **A release is cut** — tagging the new version (e.g., `v2.4.1`); this is what triggers CI
         3. **CI packages** the updated manifests (including the ConfigMap with `LOG_LEVEL: debug`) as an OCI artifact tagged `v2.4.1` and pushes it to the enterprise registry
         4. **Flux's OCIRepository** polls the registry on its interval (e.g., every 5 minutes), detects `v2.4.1` satisfies its semver policy (`>=2.0.0`), and fetches the artifact

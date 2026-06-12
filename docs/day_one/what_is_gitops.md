@@ -1,5 +1,5 @@
 ---
-title: "What Is GitOps? The Paradigm Explained"
+title: "What Is GitOps? The Paradigm Explained for Developers"
 description: "GitOps explained from first principles — what problem it solves, how declared desired state drives your cluster, and where FluxCD fits in."
 ---
 
@@ -113,6 +113,8 @@ flowchart LR
 
 Notice what's missing: there's no step where you run [`kubectl apply`](https://k8s.bradpenney.io/day_one/kubectl/first_deploy/). The cluster pulls its own desired state — as a versioned artifact — and applies it continuously.
 
+One nuance these diagrams simplify: **dev and staging** can reconcile to each new version automatically, but **production is pinned** to a specific, tested version and moved forward by a deliberate promotion — it doesn't chase every new build. [Your Flux Workflow](your_flux_workflow.md) shows how that promotion happens.
+
 ---
 
 ## The Four Principles of GitOps
@@ -127,7 +129,7 @@ GitOps isn't just a tool preference — it's a set of principles. The [OpenGitOp
 
 === "Versioned and Immutable"
 
-    Every change is a commit in Git, and every release is packaged as an immutable, semver-tagged artifact — `registry/my-app:v1.2.3` is the same bytes today as the day it shipped. Git preserves *who changed what and when*; the artifact preserves *exactly what was deployed*. A mutable Git branch can't give you that — `main` today isn't `main` last week, but `v1.2.3` never changes.
+    Every change is a commit in Git, and every release is packaged as an immutable, semver-tagged artifact — `registry/my-app-config:v1.2.3` is the same bytes today as the day it shipped. Git preserves *who changed what and when*; the artifact preserves *exactly what was deployed*. A mutable Git branch can't give you that — `main` today isn't `main` last week, but `v1.2.3` never changes.
 
     **What this means for you:** Your authorship trail is `git log`. The precise, immutable version that ran is the artifact tag — that's what you pin to, audit, and roll back to.
 
@@ -198,12 +200,12 @@ If you've deployed to Kubernetes before, here's the practical shift:
 |--------------|----------------------|
 | [`kubectl apply -f deployment.yaml`](https://k8s.bradpenney.io/day_one/kubectl/first_deploy/) | Commit your manifests to Git, open a PR, merge |
 | `helm upgrade my-app ./chart` | Edit `values.yaml` in Git, open a PR, merge |
-| `kubectl set image deployment/...` | Commit your updated app code — CI builds a versioned artifact, Flux applies it |
+| `kubectl set image deployment/...` | Commit your updated app code — CI builds a versioned artifact; Flux deploys that version once it's promoted |
 | "Did that deploy?" → check `kubectl rollout status` | "Did that deploy?" → [check Flux reconciliation status](reading_flux_status.md) |
 | Rollback: `kubectl rollout undo` | SRE pins the artifact version; or revert your commit and let CI rebuild |
 
 !!! info "Who's Who: SRE vs Platform Team"
-    Two roles show up throughout Day One. The **platform team** builds and maintains the GitOps platform itself — installing Flux, wiring up sources, registries, and integrations. The **SRE** (site reliability engineer) owns production support and monitoring — incident response, rollbacks, and on-call. The **developer** (you) writes the code and merges the PR.
+    Two roles show up throughout Day One. The **platform team** builds and maintains the GitOps platform itself — installing Flux, wiring up sources, registries, and integrations. The **SRE** (site reliability engineer) owns production support and monitoring — incident response, rollbacks, and on-call. The **developer** (you) writes the code, merges the PR, and authors the deployment manifests. One boundary worth knowing now: publishing a new version and *promoting* it to production are separate rights — you publish, an SRE promotes. [Your Flux Workflow](your_flux_workflow.md) details that split.
 
 The muscle memory changes, but the underlying Kubernetes concepts don't. Pods still run. Deployments still manage ReplicaSets. Services still route traffic. GitOps changes *how* you describe what you want — not what Kubernetes does with that description.
 
