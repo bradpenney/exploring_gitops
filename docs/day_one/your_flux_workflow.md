@@ -1,4 +1,5 @@
 ---
+date: "2026-06-08 22:07"
 title: "Your Flux Workflow: Commit, Build, Publish"
 description: "How enterprise GitOps works: your CI pipeline builds a versioned OCI artifact, Flux reads it from your artifact registry, and your cluster reconciles."
 ---

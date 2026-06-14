@@ -1,4 +1,5 @@
 ---
+date: "2026-06-08 22:07"
 title: "What Is GitOps? The Paradigm Explained for Developers"
 description: "GitOps explained from first principles — what problem it solves, how declared desired state drives your cluster, and where FluxCD fits in."
 ---

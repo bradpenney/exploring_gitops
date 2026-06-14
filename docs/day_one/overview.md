@@ -1,4 +1,5 @@
 ---
+date: "2026-06-08 22:07"
 title: "Day One: Understanding GitOps - Overview"
 description: "GitOps explained for developers and new team members. Learn what changed, why it changed, and how to work confidently with a FluxCD-enabled cluster."
 ---

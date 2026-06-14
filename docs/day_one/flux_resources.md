@@ -1,4 +1,5 @@
 ---
+date: "2026-06-08 22:07"
 title: "Flux Resources: What You'll See in the Cluster"
 description: "A plain-language reference to the Flux resources developers meet in a cluster: OCIRepository, Kustomization, HelmRelease, and GitRepository explained."
 ---

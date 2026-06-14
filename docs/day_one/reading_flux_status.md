@@ -1,4 +1,5 @@
 ---
+date: "2026-06-08 22:07"
 title: "Reading Flux Status: Did My Change Deploy?"
 description: "The kubectl commands that tell you whether Flux reconciled your changes — and how to read the error conditions when reconciliation fails."
 ---

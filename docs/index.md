@@ -1,4 +1,5 @@
 ---
+date: "2026-04-11 16:12"
 title: "Exploring GitOps - FluxCD Continuous Delivery Guide"
 description: "A progressive guide to GitOps and FluxCD — from understanding the paradigm to running production-grade continuous delivery in Kubernetes."
 ---
