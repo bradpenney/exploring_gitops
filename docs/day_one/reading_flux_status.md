@@ -63,7 +63,7 @@ These commands cover the majority of what you'll need day-to-day. Flux resources
 !!! note "You May Not Have Access"
     Your platform team may use standard Kubernetes RBAC to limit who can read Flux resources — especially in the `flux-system` namespace. If a `kubectl get` here returns a `Forbidden` error, that's expected, not broken: ask your platform team for read access, or for the namespace where your app's resources live.
 
-<div class="grid cards single-col" markdown>
+<div class="grid cards" markdown>
 
 -   :material-cube-outline: **OCIRepository Status**
 

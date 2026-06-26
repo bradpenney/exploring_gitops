@@ -34,7 +34,7 @@ These commands work. But they create invisible state. **The cluster knows what's
 
 This leads to real problems:
 
-<div class="grid cards" markdown>
+<div class="grid cards two-col" markdown>
 
 -   :material-sync-alert: **Drift**
 

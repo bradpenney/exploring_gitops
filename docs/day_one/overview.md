@@ -48,7 +48,7 @@ Day One explains the paradigm and gives you the vocabulary to work confidently i
 
 ## The Articles
 
-<div class="grid cards" markdown>
+<div class="grid cards two-col" markdown>
 
 -   :material-lightbulb: **[What Is GitOps?](what_is_gitops.md)**
 

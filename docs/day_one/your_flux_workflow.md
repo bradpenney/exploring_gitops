@@ -27,7 +27,7 @@ A common misconception about GitOps is that Flux watches your GitHub repository 
 
 Here's why:
 
-<div class="grid cards" markdown>
+<div class="grid cards two-col" markdown>
 
 -   :material-server-off: **Runtime Dependency on a Git Forge**
 

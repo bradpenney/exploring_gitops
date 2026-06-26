@@ -16,7 +16,7 @@ This site covers GitOps with **[FluxCD](https://fluxcd.io/flux/)** — a [CNCF G
 
 Start where you are. The tiers build in order, but jump to whatever you need.
 
-<div class="grid cards" markdown>
+<div class="grid cards two-col" markdown>
 
 -   :material-account: **Day One — Developers and New Team Members**
 

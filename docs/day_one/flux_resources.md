@@ -23,7 +23,7 @@ When you run [`kubectl get`](https://k8s.bradpenney.io/day_one/kubectl/commands/
 
 Flux resources fall into two categories:
 
-<div class="grid cards" markdown>
+<div class="grid cards two-col" markdown>
 
 -   :material-download: **Sources**
 
