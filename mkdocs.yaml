@@ -37,6 +37,7 @@ extra_css:
 
 theme:
   name: material
+  custom_dir: overrides
   font:
     text: IBM Plex Sans
     code: IBM Plex Mono
@@ -73,7 +74,8 @@ plugins:
   - meta
   - exclude:
       glob:
-        - "essentials/*"
+        # essentials/deploying_the_edge_stack.md PUBLISHED 2026-07-08; future
+        # essentials drafts must be ADDED here individually (no blanket glob).
         - "efficiency/*"
         - "mastery/*"
   - rss:
@@ -139,6 +141,9 @@ nav:
       - Reading Flux Status: day_one/reading_flux_status.md
       - Flux Resources Explained: day_one/flux_resources.md
 
+  - 📦 Essentials:
+      - Deploying Platform Services with Flux and OCI Artifacts: essentials/deploying_the_edge_stack.md
+
   # EDITORIAL NOTE: Content below is commented out pending quality review.
   # Build in order: Essentials → Efficiency → Mastery.
   # Uncomment articles ONE AT A TIME after thorough editorial vetting.
@@ -149,7 +154,6 @@ nav:
   #     - Installing Flux: essentials/installing_flux.md
   #     - Bootstrapping Flux: essentials/bootstrapping.md
   #     - GitRepositories and Kustomizations: essentials/gitrepositories.md
-  #     - HelmReleases: essentials/helmreleases.md
 
   # ⚡ Efficiency - Advanced FluxCD Workflows
   # - ⚡ Efficiency:

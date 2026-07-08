@@ -43,7 +43,7 @@ flowchart TD
 
 Your platform team controls which sources and reconcilers are set up — you may have one `Kustomization` per app or one per environment. Ask them which resources correspond to your application.
 
-!!! note "What about `GitRepository`?"
+!!! info "What about `GitRepository`?"
     Flux can also watch a Git repository directly via a `GitRepository` source. You may see one in a cluster, but this site delivers everything — apps *and* infrastructure — as OCI artifacts, and doesn't recommend Git-forge watching for delivery. [Your Flux Workflow](your_flux_workflow.md) explains why.
 
 ---
