@@ -1,0 +1,1492 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Your edge stack — Traefik, cert-manager, external-dns — deployed with zero manual commands: a versioned OCI artifact, a Flux Kustomization, and nothing else.">
+      
+      
+        <meta name="author" content="Brad Penney">
+      
+      
+        <link rel="canonical" href="https://gitops.bradpenney.io/essentials/deploying_the_edge_stack/">
+      
+      
+        <link rel="prev" href="../../day_one/flux_resources/">
+      
+      
+      
+        
+      
+      
+        <link rel="alternate" type="application/rss+xml" title="RSS feed" href="../../feed_rss_created.xml">
+        <link rel="alternate" type="application/rss+xml" title="RSS feed of updated content" href="../../feed_rss_updated.xml">
+      
+      <link rel="icon" href="../../images/exploring_gitops.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Deploying Platform Services with Flux and OCI Artifacts - Exploring GitOps</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+  
+  
+    
+      
+      
+    
+  
+    
+      
+      
+    
+  
+    
+      
+      
+    
+  
+    
+      
+      
+    
+  
+    
+      
+      
+    
+  
+    
+      
+      
+    
+  
+    
+      
+      
+    
+  
+    
+      
+      
+    
+  
+    
+      
+      
+    
+  
+    
+      
+      
+    
+  
+    
+      
+      
+    
+  
+    
+      
+      
+    
+  
+  
+  <style>:root{--md-admonition-icon--note:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M1%207.775V2.75C1%201.784%201.784%201%202.75%201h5.025c.464%200%20.91.184%201.238.513l6.25%206.25a1.75%201.75%200%200%201%200%202.474l-5.026%205.026a1.75%201.75%200%200%201-2.474%200l-6.25-6.25A1.75%201.75%200%200%201%201%207.775m1.5%200c0%20.066.026.13.073.177l6.25%206.25a.25.25%200%200%200%20.354%200l5.025-5.025a.25.25%200%200%200%200-.354l-6.25-6.25a.25.25%200%200%200-.177-.073H2.75a.25.25%200%200%200-.25.25ZM6%205a1%201%200%201%201%200%202%201%201%200%200%201%200-2%22/%3E%3C/svg%3E');--md-admonition-icon--abstract:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M2.5%201.75v11.5c0%20.138.112.25.25.25h3.17a.75.75%200%200%201%200%201.5H2.75A1.75%201.75%200%200%201%201%2013.25V1.75C1%20.784%201.784%200%202.75%200h8.5C12.216%200%2013%20.784%2013%201.75v7.736a.75.75%200%200%201-1.5%200V1.75a.25.25%200%200%200-.25-.25h-8.5a.25.25%200%200%200-.25.25m13.274%209.537zl-4.557%204.45a.75.75%200%200%201-1.055-.008l-1.943-1.95a.75.75%200%200%201%201.062-1.058l1.419%201.425%204.026-3.932a.75.75%200%201%201%201.048%201.074M4.75%204h4.5a.75.75%200%200%201%200%201.5h-4.5a.75.75%200%200%201%200-1.5M4%207.75A.75.75%200%200%201%204.75%207h2a.75.75%200%200%201%200%201.5h-2A.75.75%200%200%201%204%207.75%22/%3E%3C/svg%3E');--md-admonition-icon--info:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M0%208a8%208%200%201%201%2016%200A8%208%200%200%201%200%208m8-6.5a6.5%206.5%200%201%200%200%2013%206.5%206.5%200%200%200%200-13M6.5%207.75A.75.75%200%200%201%207.25%207h1a.75.75%200%200%201%20.75.75v2.75h.25a.75.75%200%200%201%200%201.5h-2a.75.75%200%200%201%200-1.5h.25v-2h-.25a.75.75%200%200%201-.75-.75M8%206a1%201%200%201%201%200-2%201%201%200%200%201%200%202%22/%3E%3C/svg%3E');--md-admonition-icon--tip:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M3.499.75a.75.75%200%200%201%201.5%200v.996C5.9%202.903%206.793%203.65%207.662%204.376l.24.202c-.036-.694.055-1.422.426-2.163C9.1.873%2010.794-.045%2012.622.26%2014.408.558%2016%201.94%2016%204.25c0%201.278-.954%202.575-2.44%202.734l.146.508.065.22c.203.701.412%201.455.476%202.226.142%201.707-.4%203.03-1.487%203.898C11.714%2014.671%2010.27%2015%208.75%2015h-6a.75.75%200%200%201%200-1.5h1.376a4.5%204.5%200%200%201-.563-1.191%203.84%203.84%200%200%201-.05-2.063%204.65%204.65%200%200%201-2.025-.293.75.75%200%200%201%20.525-1.406c1.357.507%202.376-.006%202.698-.318l.009-.01a.747.747%200%200%201%201.06%200%20.75.75%200%200%201-.012%201.074c-.912.92-.992%201.835-.768%202.586.221.74.745%201.337%201.196%201.621H8.75c1.343%200%202.398-.296%203.074-.836.635-.507%201.036-1.31.928-2.602-.05-.603-.216-1.224-.422-1.93l-.064-.221c-.12-.407-.246-.84-.353-1.29a2.4%202.4%200%200%201-.507-.441%203.1%203.1%200%200%201-.633-1.248.75.75%200%200%201%201.455-.364c.046.185.144.436.31.627.146.168.353.305.712.305.738%200%201.25-.615%201.25-1.25%200-1.47-.95-2.315-2.123-2.51-1.172-.196-2.227.387-2.706%201.345-.46.92-.27%201.774.019%203.062l.042.19.01.05c.348.443.666.949.94%201.553a.75.75%200%201%201-1.365.62c-.553-1.217-1.32-1.94-2.3-2.768L6.7%205.527c-.814-.68-1.75-1.462-2.692-2.619a3.7%203.7%200%200%200-1.023.88c-.406.495-.663%201.036-.722%201.508.116.122.306.21.591.239.388.038.797-.06%201.032-.19a.75.75%200%200%201%20.728%201.31c-.515.287-1.23.439-1.906.373-.682-.067-1.473-.38-1.879-1.193L.75%205.677V5.5c0-.984.48-1.94%201.077-2.664.46-.559%201.05-1.055%201.673-1.353z%22/%3E%3C/svg%3E');--md-admonition-icon--success:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M13.78%204.22a.75.75%200%200%201%200%201.06l-7.25%207.25a.75.75%200%200%201-1.06%200L2.22%209.28a.75.75%200%200%201%20.018-1.042.75.75%200%200%201%201.042-.018L6%2010.94l6.72-6.72a.75.75%200%200%201%201.06%200%22/%3E%3C/svg%3E');--md-admonition-icon--question:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M0%208a8%208%200%201%201%2016%200A8%208%200%200%201%200%208m8-6.5a6.5%206.5%200%201%200%200%2013%206.5%206.5%200%200%200%200-13M6.92%206.085h.001a.749.749%200%201%201-1.342-.67c.169-.339.436-.701.849-.977C6.845%204.16%207.369%204%208%204a2.76%202.76%200%200%201%201.637.525c.503.377.863.965.863%201.725%200%20.448-.115.83-.329%201.15-.205.307-.47.513-.692.662-.109.072-.22.138-.313.195l-.006.004a6%206%200%200%200-.26.16%201%201%200%200%200-.276.245.75.75%200%200%201-1.248-.832c.184-.264.42-.489.692-.661q.154-.1.313-.195l.007-.004c.1-.061.182-.11.258-.161a1%201%200%200%200%20.277-.245C8.96%206.514%209%206.427%209%206.25a.61.61%200%200%200-.262-.525A1.27%201.27%200%200%200%208%205.5c-.369%200-.595.09-.74.187a1%201%200%200%200-.34.398M9%2011a1%201%200%201%201-2%200%201%201%200%200%201%202%200%22/%3E%3C/svg%3E');--md-admonition-icon--warning:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M6.457%201.047c.659-1.234%202.427-1.234%203.086%200l6.082%2011.378A1.75%201.75%200%200%201%2014.082%2015H1.918a1.75%201.75%200%200%201-1.543-2.575Zm1.763.707a.25.25%200%200%200-.44%200L1.698%2013.132a.25.25%200%200%200%20.22.368h12.164a.25.25%200%200%200%20.22-.368Zm.53%203.996v2.5a.75.75%200%200%201-1.5%200v-2.5a.75.75%200%200%201%201.5%200M9%2011a1%201%200%201%201-2%200%201%201%200%200%201%202%200%22/%3E%3C/svg%3E');--md-admonition-icon--failure:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M2.344%202.343za8%208%200%200%201%2011.314%2011.314A8.002%208.002%200%200%201%20.234%2010.089a8%208%200%200%201%202.11-7.746m1.06%2010.253a6.5%206.5%200%201%200%209.108-9.275%206.5%206.5%200%200%200-9.108%209.275M6.03%204.97%208%206.94l1.97-1.97a.749.749%200%200%201%201.275.326.75.75%200%200%201-.215.734L9.06%208l1.97%201.97a.749.749%200%200%201-.326%201.275.75.75%200%200%201-.734-.215L8%209.06l-1.97%201.97a.749.749%200%200%201-1.275-.326.75.75%200%200%201%20.215-.734L6.94%208%204.97%206.03a.75.75%200%200%201%20.018-1.042.75.75%200%200%201%201.042-.018%22/%3E%3C/svg%3E');--md-admonition-icon--danger:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M9.504.43a1.516%201.516%200%200%201%202.437%201.713L10.415%205.5h2.123c1.57%200%202.346%201.909%201.22%203.004l-7.34%207.142a1.25%201.25%200%200%201-.871.354h-.302a1.25%201.25%200%200%201-1.157-1.723L5.633%2010.5H3.462c-1.57%200-2.346-1.909-1.22-3.004zm1.047%201.074L3.286%208.571A.25.25%200%200%200%203.462%209H6.75a.75.75%200%200%201%20.694%201.034l-1.713%204.188%206.982-6.793A.25.25%200%200%200%2012.538%207H9.25a.75.75%200%200%201-.683-1.06l2.008-4.418.003-.006-.004-.009-.006-.006-.008-.001q-.005%200-.009.004%22/%3E%3C/svg%3E');--md-admonition-icon--bug:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M4.72.22a.75.75%200%200%201%201.06%200l1%20.999a3.5%203.5%200%200%201%202.441%200l.999-1a.748.748%200%200%201%201.265.332.75.75%200%200%201-.205.729l-.775.776c.616.63.995%201.493.995%202.444v.327q0%20.15-.025.292c.408.14.764.392%201.029.722l1.968-.787a.75.75%200%200%201%20.556%201.392L13%207.258V9h2.25a.75.75%200%200%201%200%201.5H13v.5q-.002.615-.141%201.186l2.17.868a.75.75%200%200%201-.557%201.392l-2.184-.873A5%205%200%200%201%208%2016a5%205%200%200%201-4.288-2.427l-2.183.873a.75.75%200%200%201-.558-1.392l2.17-.868A5%205%200%200%201%203%2011v-.5H.75a.75.75%200%200%201%200-1.5H3V7.258L.971%206.446a.75.75%200%200%201%20.558-1.392l1.967.787c.265-.33.62-.583%201.03-.722a1.7%201.7%200%200%201-.026-.292V4.5c0-.951.38-1.814.995-2.444L4.72%201.28a.75.75%200%200%201%200-1.06m.53%206.28a.75.75%200%200%200-.75.75V11a3.5%203.5%200%201%200%207%200V7.25a.75.75%200%200%200-.75-.75ZM6.173%205h3.654A.17.17%200%200%200%2010%204.827V4.5a2%202%200%201%200-4%200v.327c0%20.096.077.173.173.173%22/%3E%3C/svg%3E');--md-admonition-icon--example:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M5%205.782V2.5h-.25a.75.75%200%200%201%200-1.5h6.5a.75.75%200%200%201%200%201.5H11v3.282l3.666%205.76C15.619%2013.04%2014.543%2015%2012.767%2015H3.233c-1.776%200-2.852-1.96-1.899-3.458Zm-2.4%206.565a.75.75%200%200%200%20.633%201.153h9.534a.75.75%200%200%200%20.633-1.153L12.225%2010.5h-8.45ZM9.5%202.5h-3V6c0%20.143-.04.283-.117.403L4.73%209h6.54L9.617%206.403A.75.75%200%200%201%209.5%206Z%22/%3E%3C/svg%3E');--md-admonition-icon--quote:url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M1.75%202.5h10.5a.75.75%200%200%201%200%201.5H1.75a.75.75%200%200%201%200-1.5m4%205h8.5a.75.75%200%200%201%200%201.5h-8.5a.75.75%200%200%201%200-1.5m0%205h8.5a.75.75%200%200%201%200%201.5h-8.5a.75.75%200%200%201%200-1.5M2.5%207.75v6a.75.75%200%200%201-1.5%200v-6a.75.75%200%200%201%201.5%200%22/%3E%3C/svg%3E');}</style>
+
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=IBM+Plex+Sans:300,300i,400,400i,700,700i%7CIBM+Plex+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"IBM Plex Sans";--md-code-font:"IBM Plex Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+  
+
+
+  
+  
+
+<script id="__analytics">function __md_analytics(){function e(){dataLayer.push(arguments)}window.dataLayer=window.dataLayer||[],e("js",new Date),e("config","G-V01MJ4R3SQ"),document.addEventListener("DOMContentLoaded",(function(){document.forms.search&&document.forms.search.query.addEventListener("blur",(function(){this.value&&e("event","search",{search_term:this.value})}));document$.subscribe((function(){var t=document.forms.feedback;if(void 0!==t)for(var a of t.querySelectorAll("[type=submit]"))a.addEventListener("click",(function(a){a.preventDefault();var n=document.location.pathname,d=this.getAttribute("data-md-value");e("event","feedback",{page:n,data:d}),t.firstElementChild.disabled=!0;var r=t.querySelector(".md-feedback__note [data-md-value='"+d+"']");r&&(r.hidden=!1)})),t.hidden=!1})),location$.subscribe((function(t){e("config","G-V01MJ4R3SQ",{page_path:t.pathname})}))}));var t=document.createElement("script");t.async=!0,t.src="https://www.googletagmanager.com/gtag/js?id=G-V01MJ4R3SQ",document.getElementById("__analytics").insertAdjacentElement("afterEnd",t)}</script>
+  <script>
+    (function () {
+      if (!/(^|\.)bradpenney\.io$/.test(window.location.hostname)) {
+        return;
+      }
+      
+        if (typeof __md_analytics !== "undefined") {
+          var consent = __md_get("__consent");
+          if (consent && consent.analytics) { __md_analytics(); }
+        }
+      
+    })();
+  </script>
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Deploying Platform Services with Flux and OCI Artifacts - Exploring GitOps" />
+<meta property="og:description" content="Your edge stack — Traefik, cert-manager, external-dns — deployed with zero manual commands: a versioned OCI artifact, a Flux Kustomization, and nothing else." />
+<meta property="og:image" content="https://gitops.bradpenney.io/assets/images/social/essentials/deploying_the_edge_stack.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://gitops.bradpenney.io/essentials/deploying_the_edge_stack/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="Deploying Platform Services with Flux and OCI Artifacts - Exploring GitOps" />
+<meta property="twitter:description" content="Your edge stack — Traefik, cert-manager, external-dns — deployed with zero manual commands: a versioned OCI artifact, a Flux Kustomization, and nothing else." />
+<meta property="twitter:image" content="https://gitops.bradpenney.io/assets/images/social/essentials/deploying_the_edge_stack.png" />
+</head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="black" data-md-color-accent="amber">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#deploying-platform-services-with-flux-and-oci-artifacts" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Exploring GitOps" class="md-header__button md-logo" aria-label="Exploring GitOps" data-md-component="logo">
+      
+  <img src="../../images/exploring_gitops.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Exploring GitOps
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Deploying Platform Services with Flux and OCI Artifacts
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Exploring GitOps" class="md-nav__button md-logo" aria-label="Exploring GitOps" data-md-component="logo">
+      
+  <img src="../../images/exploring_gitops.png" alt="logo">
+
+    </a>
+    Exploring GitOps
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    🏥 Day One - Understanding GitOps
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    🏥 Day One - Understanding GitOps
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../day_one/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../day_one/what_is_gitops/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    What Is GitOps?
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../day_one/your_flux_workflow/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Your Flux Workflow
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../day_one/reading_flux_status/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reading Flux Status
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../day_one/flux_resources/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Flux Resources Explained
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    📦 Essentials
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    📦 Essentials
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deploying Platform Services with Flux and OCI Artifacts
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deploying Platform Services with Flux and OCI Artifacts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#the-rule-and-the-chain-that-enforces-it" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Rule, and the Chain That Enforces It
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-config-repo-what-goes-in-the-artifact" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Config Repo: What Goes in the Artifact
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#packaging-a-version-number-for-your-platform" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Packaging: A Version Number for Your Platform
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-cluster-side-two-small-resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Cluster Side: Two Small Resources
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-reconciler-ate-my-hotfix-good" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Reconciler Ate My Hotfix (Good.)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#why-this-matters-for-platform-work" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why This Matters for Platform Work
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#common-pitfalls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common Pitfalls
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#practice-exercises" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Practice Exercises
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quick-recap" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quick Recap
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#whats-next" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What's Next?
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#further-reading" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Further Reading
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Further Reading">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#official-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Official Documentation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#related-articles" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related Articles
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#on-the-kubernetes-site" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        On the Kubernetes Site
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#the-rule-and-the-chain-that-enforces-it" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Rule, and the Chain That Enforces It
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-config-repo-what-goes-in-the-artifact" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Config Repo: What Goes in the Artifact
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#packaging-a-version-number-for-your-platform" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Packaging: A Version Number for Your Platform
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-cluster-side-two-small-resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Cluster Side: Two Small Resources
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-reconciler-ate-my-hotfix-good" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Reconciler Ate My Hotfix (Good.)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#why-this-matters-for-platform-work" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why This Matters for Platform Work
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#common-pitfalls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common Pitfalls
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#practice-exercises" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Practice Exercises
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quick-recap" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quick Recap
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#whats-next" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What's Next?
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#further-reading" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Further Reading
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Further Reading">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#official-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Official Documentation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#related-articles" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Related Articles
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#on-the-kubernetes-site" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        On the Kubernetes Site
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="deploying-platform-services-with-flux-and-oci-artifacts">Deploying Platform Services with Flux and OCI Artifacts<a class="headerlink" href="#deploying-platform-services-with-flux-and-oci-artifacts" title="Link to this section">🔗</a></h1>
+<div class="admonition tip">
+<p class="admonition-title">Part of a Learning Path</p>
+<p>This article is a step in the <a href="https://bradpenney.io/pathways/cluster-to-internet">Put Your Kubernetes App on the Internet</a> pathway on <a href="https://bradpenney.io">bradpenney.io</a>. It assumes a cluster already running Flux and the delivery model from <a href="../../day_one/overview/">Day One</a> — <a href="../../day_one/what_is_gitops/">what GitOps is</a> and <a href="../../day_one/your_flux_workflow/">why everything here ships as OCI artifacts</a>.</p>
+</div>
+<p>The edge stack is written. Sitting in a directory you're proud of are the manifests for <a href="https://k8s.bradpenney.io/efficiency/networking/gateway_api/">Traefik and its Gateway</a>, <a href="https://k8s.bradpenney.io/efficiency/networking/cert_manager/">cert-manager</a>, and <a href="https://k8s.bradpenney.io/efficiency/networking/external_dns/">external-dns</a> — the machinery that puts apps on the internet. One question left: how does any of it reach the cluster? Your fingers already know the tempting answer, and it's three keystrokes into being wrong.</p>
+<p>Because the way you ship this directory decides what kind of platform you run. Apply it by hand and the cluster becomes a snowflake: a pile of state that exists only because someone once typed the right commands in the right order. Ship it the way this article does and the cluster becomes a <em>consequence</em>: <strong>if it isn't in the artifact, it doesn't exist</strong>, and everything that is, exists on every cluster that subscribes, forever, with a version number. That one rule is the whole article; every section below is it applied to a different question.</p>
+<div class="admonition info">
+<p class="admonition-title">What You'll Learn</p>
+<p>By the end of this article, you'll understand:</p>
+<ul>
+<li><strong>The delivery chain</strong>: config repo → CI → versioned OCI artifact → Flux reconciliation, with no hands in the middle</li>
+<li><strong>How to structure the platform config repo</strong>, and why the artifact must be self-contained</li>
+<li><strong>The two cluster-side resources</strong>: an <code>OCIRepository</code> pinned to an exact version, and a <code>Kustomization</code> with <code>prune</code> on</li>
+<li><strong>What happens to manual changes</strong>, and why the reconciler eating your hotfix is a feature</li>
+<li><strong>How promotion works</strong>: publishing a version and deploying it are two different, deliberate acts</li>
+</ul>
+</div>
+<hr />
+<pre class="mermaid"><code>flowchart TD
+    R["Config repo&lt;br/&gt;platform/traefik, cert-manager, external-dns&lt;br/&gt;(pull requests, reviews, history)"]
+    CI["CI pipeline&lt;br/&gt;flux push artifact"]
+    REG["OCI registry&lt;br/&gt;platform-config:v1.4.2 — immutable, versioned"]
+    OCIR["OCIRepository&lt;br/&gt;pinned to v1.4.2"]
+    K["Flux Kustomization&lt;br/&gt;prune: true, health checks"]
+    C["Cluster: the edge stack, running&lt;br/&gt;exactly what the artifact declares"]
+    R --&gt; CI --&gt; REG
+    REG --&gt; OCIR --&gt; K --&gt; C
+    style R fill:#2d3748,stroke:#cbd5e0,stroke-width:2px,color:#fff
+    style CI fill:#4a5568,stroke:#cbd5e0,stroke-width:2px,color:#fff
+    style REG fill:#326CE5,stroke:#cbd5e0,stroke-width:2px,color:#fff
+    style OCIR fill:#2d3748,stroke:#cbd5e0,stroke-width:2px,color:#fff
+    style K fill:#2d3748,stroke:#cbd5e0,stroke-width:2px,color:#fff
+    style C fill:#2f855a,stroke:#cbd5e0,stroke-width:2px,color:#fff</code></pre>
+<hr />
+<h2 id="the-rule-and-the-chain-that-enforces-it">The Rule, and the Chain That Enforces It<a class="headerlink" href="#the-rule-and-the-chain-that-enforces-it" title="Link to this section">🔗</a></h2>
+<p><a href="../../day_one/what_is_gitops/">Day One</a> established the paradigm: the cluster continuously reconciles itself to a declared desired state, and <a href="../../day_one/your_flux_workflow/">that state travels as an OCI artifact</a>: an immutable, versioned bundle in a container registry, not a Git branch some controller polls. This article is the platform engineer's side of that story: <em>you're the one who builds the artifact.</em></p>
+<p>The chain has four links, and a human hand touches exactly one of them:</p>
+<ol>
+<li><strong>The config repo</strong>: where manifests live, change by pull request, and carry history. <em>(The one place hands belong.)</em></li>
+<li><strong>CI packages the repo into an OCI artifact</strong>: a build step declared in the pipeline, producing <code>platform-config:v1.4.2</code> in your registry.</li>
+<li><strong>An <code>OCIRepository</code></strong> in the cluster points at that artifact, pinned to a version.</li>
+<li><strong>A <code>Kustomization</code></strong> applies what's inside, on an interval, forever, and removes what's no longer there.</li>
+</ol>
+<p>Nothing in the chain is a command someone runs. Everything is a declaration something reconciles. That's the standard — not because typing is beneath you, but because typed state can't be reviewed, versioned, rolled back, or rebuilt.</p>
+<h2 id="the-config-repo-what-goes-in-the-artifact">The Config Repo: What Goes in the Artifact<a class="headerlink" href="#the-config-repo-what-goes-in-the-artifact" title="Link to this section">🔗</a></h2>
+<p>Platform services get a directory each, composed by one Kustomize entry point:</p>
+<div class="language-text highlight"><span class="filename">platform-config repository layout</span><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>platform/
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>├── kustomization.yaml        # composes everything below
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>├── traefik/
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>│   ├── kustomization.yaml    # the directory from the Gateway API article
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>│   ├── gateway-api-crds.yaml # vendored — see below
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>│   ├── rbac.yaml
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>│   ├── deployment.yaml
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>│   ├── service.yaml
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>│   └── gatewayclass.yaml
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>├── cert-manager/
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>│   ├── kustomization.yaml
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>│   ├── cert-manager-crds.yaml
+</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>│   ├── cert-manager.yaml     # vendored upstream manifests, version-pinned
+</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>│   │                         # (--enable-gateway-api arg added to the controller Deployment)
+</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>│   └── cluster-issuers.yaml
+</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>└── external-dns/
+</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>    ├── kustomization.yaml
+</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>    ├── rbac.yaml
+</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>    └── deployment.yaml       # the flags: sources, provider, txt-owner-id, policy
+</span></code></pre></div>
+<div class="language-yaml highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">platform/kustomization.yaml</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-1-1">1</a></span>
+<span class="normal"><a href="#__codelineno-1-2">2</a></span>
+<span class="normal"><a href="#__codelineno-1-3">3</a></span>
+<span class="normal"><a href="#__codelineno-1-4">4</a></span>
+<span class="normal"><a href="#__codelineno-1-5">5</a></span>
+<span class="normal"><a href="#__codelineno-1-6">6</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1"></a><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kustomize.config.k8s.io/v1beta1</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2"></a><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Kustomization</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3"></a><span class="nt">resources</span><span class="p">:</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">traefik</span><span class="w">  </span><span class="c1"># (1)!</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cert-manager</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">external-dns</span>
+</span></code></pre></div></td></tr></table></div>
+<ol>
+<li>Each component keeps its own <code>kustomization.yaml</code>, so it can be reviewed, versioned, and (when you grow into it) reconciled independently.</li>
+</ol>
+<p>Two decisions in that layout carry the rule:</p>
+<ul>
+<li><strong>Everything upstream is vendored.</strong> The Gateway API CRDs, cert-manager's manifests: copied into the repo at a pinned version, not fetched from the internet at build or deploy time. The artifact must be <strong>self-contained</strong>: a bundle that deploys identically whether the cluster has internet egress or not, this year or next. Upgrading a dependency is a pull request that changes vendored files — visible, reviewable, revertible.</li>
+<li><strong>No secrets. Ever.</strong> The Cloudflare token external-dns needs, the ACME account key: none of it goes in the artifact. Secrets reach the cluster through their own controlled channel (External Secrets Operator syncing from a secret manager, a topic of its own); the artifact references Secret <em>names</em> and stays safe to store, copy, and audit.</li>
+</ul>
+<h2 id="packaging-a-version-number-for-your-platform">Packaging: A Version Number for Your Platform<a class="headerlink" href="#packaging-a-version-number-for-your-platform" title="Link to this section">🔗</a></h2>
+<p>CI turns the repo into an artifact — one step in the pipeline definition, declared like everything else:</p>
+<div class="language-yaml highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">The packaging step (in your CI pipeline definition)</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-2-1">1</a></span>
+<span class="normal"><a href="#__codelineno-2-2">2</a></span>
+<span class="normal"><a href="#__codelineno-2-3">3</a></span>
+<span class="normal"><a href="#__codelineno-2-4">4</a></span>
+<span class="normal"><a href="#__codelineno-2-5">5</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1"></a><span class="l l-Scalar l-Scalar-Plain">flux push artifact \</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2"></a><span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">oci://registry.example.com/platform/platform-config:v1.4.2 \</span><span class="w">  </span><span class="c1"># (1)!</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3"></a><span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">--path=./platform \</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4"></a><span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">--source=&quot;$CI_REPOSITORY_URL&quot; \</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5"></a><span class="w">  </span><span class="l l-Scalar l-Scalar-Plain">--revision=&quot;$CI_COMMIT_SHA&quot;</span><span class="w">  </span><span class="c1"># (2)!</span>
+</span></code></pre></div></td></tr></table></div>
+<ol>
+<li>A <strong>semver tag</strong>, minted by the pipeline on merge. Artifacts are immutable: <code>v1.4.2</code> means the same bytes today, next month, and during the incident review.</li>
+<li>The artifact carries its provenance — which repo, which commit — as metadata. Every running cluster can answer "where did this config come from?" precisely.</li>
+</ol>
+<p>That tag is the unit everything else operates on. Not "the latest state of main": a <strong>number</strong> you can pin, promote, diff, and roll back to.</p>
+<h2 id="the-cluster-side-two-small-resources">The Cluster Side: Two Small Resources<a class="headerlink" href="#the-cluster-side-two-small-resources" title="Link to this section">🔗</a></h2>
+<p>The cluster subscribes with the pair you learned to <em>read</em> in <a href="../../day_one/flux_resources/">Flux Resources Explained</a> — now you're <em>writing</em> them:</p>
+<div class="language-yaml highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">platform-sync.yaml</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-3-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-3-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-3-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-3-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-3-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-3-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-3-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-3-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-3-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-3-10">10</a></span>
+<span class="normal"><a href="#__codelineno-3-11">11</a></span>
+<span class="normal"><a href="#__codelineno-3-12">12</a></span>
+<span class="normal"><a href="#__codelineno-3-13">13</a></span>
+<span class="normal"><a href="#__codelineno-3-14">14</a></span>
+<span class="normal"><a href="#__codelineno-3-15">15</a></span>
+<span class="normal"><a href="#__codelineno-3-16">16</a></span>
+<span class="normal"><a href="#__codelineno-3-17">17</a></span>
+<span class="normal"><a href="#__codelineno-3-18">18</a></span>
+<span class="normal"><a href="#__codelineno-3-19">19</a></span>
+<span class="normal"><a href="#__codelineno-3-20">20</a></span>
+<span class="normal"><a href="#__codelineno-3-21">21</a></span>
+<span class="normal"><a href="#__codelineno-3-22">22</a></span>
+<span class="normal"><a href="#__codelineno-3-23">23</a></span>
+<span class="normal"><a href="#__codelineno-3-24">24</a></span>
+<span class="normal"><a href="#__codelineno-3-25">25</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1"></a><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">source.toolkit.fluxcd.io/v1</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2"></a><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">OCIRepository</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3"></a><span class="nt">metadata</span><span class="p">:</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4"></a><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">platform-config</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5"></a><span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">flux-system</span>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6"></a><span class="nt">spec</span><span class="p">:</span>
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7"></a><span class="w">  </span><span class="nt">interval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5m</span>
+</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8"></a><span class="w">  </span><span class="nt">url</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">oci://registry.example.com/platform/platform-config</span>
+</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9"></a><span class="w">  </span><span class="nt">ref</span><span class="p">:</span>
+</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10"></a><span class="w">    </span><span class="nt">tag</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v1.4.2</span><span class="w">  </span><span class="c1"># (1)!</span>
+</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11"></a><span class="nn">---</span>
+</span><span id="__span-3-12"><a id="__codelineno-3-12" name="__codelineno-3-12"></a><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">kustomize.toolkit.fluxcd.io/v1</span>
+</span><span id="__span-3-13"><a id="__codelineno-3-13" name="__codelineno-3-13"></a><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Kustomization</span>
+</span><span id="__span-3-14"><a id="__codelineno-3-14" name="__codelineno-3-14"></a><span class="nt">metadata</span><span class="p">:</span>
+</span><span id="__span-3-15"><a id="__codelineno-3-15" name="__codelineno-3-15"></a><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">platform</span>
+</span><span id="__span-3-16"><a id="__codelineno-3-16" name="__codelineno-3-16"></a><span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">flux-system</span>
+</span><span id="__span-3-17"><a id="__codelineno-3-17" name="__codelineno-3-17"></a><span class="nt">spec</span><span class="p">:</span>
+</span><span id="__span-3-18"><a id="__codelineno-3-18" name="__codelineno-3-18"></a><span class="w">  </span><span class="nt">interval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10m</span>
+</span><span id="__span-3-19"><a id="__codelineno-3-19" name="__codelineno-3-19"></a><span class="w">  </span><span class="nt">sourceRef</span><span class="p">:</span>
+</span><span id="__span-3-20"><a id="__codelineno-3-20" name="__codelineno-3-20"></a><span class="w">    </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">OCIRepository</span>
+</span><span id="__span-3-21"><a id="__codelineno-3-21" name="__codelineno-3-21"></a><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">platform-config</span>
+</span><span id="__span-3-22"><a id="__codelineno-3-22" name="__codelineno-3-22"></a><span class="w">  </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./</span><span class="w">  </span><span class="c1"># (2)!</span>
+</span><span id="__span-3-23"><a id="__codelineno-3-23" name="__codelineno-3-23"></a><span class="w">  </span><span class="nt">prune</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w">  </span><span class="c1"># (3)!</span>
+</span><span id="__span-3-24"><a id="__codelineno-3-24" name="__codelineno-3-24"></a><span class="w">  </span><span class="nt">wait</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</span><span id="__span-3-25"><a id="__codelineno-3-25" name="__codelineno-3-25"></a><span class="w">  </span><span class="nt">timeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5m</span><span class="w">  </span><span class="c1"># (4)!</span>
+</span></code></pre></div></td></tr></table></div>
+<ol>
+<li><strong>Production pins an exact version.</strong> Semver <em>ranges</em> exist (<code>semver: "&gt;=1.4.0 &lt;2.0.0"</code>) and have a place in dev clusters that always track newest, but a production cluster states exactly what it runs, and changing this line <em>is</em> the deploy: one reviewable diff.</li>
+<li>Where in the artifact to build from — here, its root (the <code>platform/</code> content we pushed).</li>
+<li><code>prune: true</code> is the rule with teeth: remove a manifest from the artifact and the reconciler removes the object from the cluster. The artifact isn't a suggestion; it's an allow-list of what may exist, the same <a href="https://k8s.bradpenney.io/efficiency/networking/gateway_api/">zero-trust shape</a> as the rest of the platform.</li>
+<li><code>wait</code> + <code>timeout</code> make the Kustomization report <strong>health</strong>, not just "applied": if Traefik's Deployment never goes Ready, the reconciliation fails loudly, where you'll see it in <code>flux get kustomizations</code>. The <a href="../../day_one/reading_flux_status/">status-reading skills</a> from Day One apply unchanged.</li>
+</ol>
+<p>And these two resources? They're not hand-applied either: they live in the cluster's own bootstrap configuration, which is itself in Git. It's declarations all the way down; the only imperative act in the whole system is <code>git merge</code>.</p>
+<h2 id="the-reconciler-ate-my-hotfix-good">The Reconciler Ate My Hotfix (Good.)<a class="headerlink" href="#the-reconciler-ate-my-hotfix-good" title="Link to this section">🔗</a></h2>
+<p>Here's the moment the rule stops being philosophy. Someone <code>kubectl edit</code>s the Traefik Deployment at 11pm, bumps a resource limit, fixes the incident, goes to bed. By 11:10 the change is <strong>gone</strong>: the reconciler compared the cluster against <code>v1.4.2</code>, found drift, and put it back.</p>
+<p>That's not the tooling being obstinate; that's the system keeping its one promise: <em>the cluster runs what the artifact declares.</em> A hotfix that lives only in cluster state is a time bomb: invisible to review, absent from the next rebuild, contradicting every mental model built on the repo. The correct 11pm move is the same as the 11am move: change the manifest, merge, let the pipeline mint <code>v1.4.3</code>, bump the tag. In a genuine break-glass emergency, do what you must — then commit the equivalent change <em>immediately</em>, because the reconciler's memory is longer than yours.</p>
+<p><code>kubectl apply</code> still has a home: <strong>experimentation</strong>. A kind cluster, a scratch <a href="https://k8s.bradpenney.io/essentials/namespaces/">namespace</a>, a "does this even work" afternoon: apply freely, learn fast, throw it away. The line is bright: experiments are applied by hand; <em>platforms are reconciled from artifacts.</em></p>
+<p>One more distinction the versioned artifact makes possible: <strong>publishing and deploying are different acts.</strong> Merging your change and letting CI push <code>v1.4.3</code> <em>publishes</em>: nothing anywhere is running it yet. Bumping a cluster's pinned tag <em>deploys</em>: a separate, deliberate, owned decision. In regulated environments those two acts belong to different roles; even solo, keeping them distinct is what makes "what's actually in prod?" a question with an exact answer.</p>
+<h2 id="why-this-matters-for-platform-work">Why This Matters for Platform Work<a class="headerlink" href="#why-this-matters-for-platform-work" title="Link to this section">🔗</a></h2>
+<ul>
+<li><strong>Cluster number two is a re-run, not a rebuild.</strong> DR site, staging, a replacement after a bad day: install Flux, apply the bootstrap config, and the entire edge stack reconverges from the artifact. Anything that would be lost in that rebuild was, by definition, drift you're better off without.</li>
+<li><strong>Rollback is a one-line diff.</strong> <code>v1.4.3</code> broke routing? Change the pinned tag back to <code>v1.4.2</code> and merge. No archaeology, no remembered commands, no "who knows how this was installed."</li>
+<li><strong>The audit trail is complete and boring.</strong> What changed = git log. What's deployed where = each cluster's pinned tag. What was running during the incident = an immutable artifact you can pull and inspect byte-for-byte.</li>
+</ul>
+<h2 id="common-pitfalls">Common Pitfalls<a class="headerlink" href="#common-pitfalls" title="Link to this section">🔗</a></h2>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:3"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><input id="__tabbed_1_3" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m18.33 8.5 4.59-4.58L21.5 2.5l-19 19 1.42 1.42 4.58-4.59 3.08 3.08A2 2 0 0 0 13 22a2 2 0 0 0 1.41-.59l7-7A2 2 0 0 0 22 13a2 2 0 0 0-.59-1.42m-15.8 3.85 9.86-9.78-3.06-3.07A2 2 0 0 0 11 2H4a2 2 0 0 0-2 2v7a2 2 0 0 0 .59 1.41M5.5 4A1.5 1.5 0 1 1 4 5.5 1.5 1.5 0 0 1 5.5 4"/></svg></span> Pushed v1.4.3, nothing changed</label><label for="__tabbed_1_2"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 4v2H3V4h3.5l1-1h5l1 1zM4 19V7h12v12c0 1.1-.9 2-2 2H6c-1.1 0-2-.9-2-2m15-4h2v2h-2zm0-8h2v6h-2z"/></svg></span> Prune deleted something I needed</label><label for="__tabbed_1_3"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M1 4.27 2.28 3 20 20.72 18.73 22l-3.55-3.56-1.73 1.59L12 21.35l-1.45-1.32C5.4 15.36 2 12.27 2 8.5c0-.95.23-1.83.63-2.6zM7.5 3c1.74 0 3.41.81 4.5 2.08C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.41 22 8.5c0 2.57-1.58 4.82-4.21 7.47L5.27 3.45C5.95 3.16 6.7 3 7.5 3"/></svg></span> The Kustomization is failing health checks</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
+<p>Working as designed: the cluster is <strong>pinned to <code>v1.4.2</code></strong>, and publishing a new artifact deploys nothing. Promotion is the deliberate act of changing the pinned tag in the cluster's config and merging. If you <em>wanted</em> auto-tracking (a dev cluster), that's what a semver range on the <code>OCIRepository</code> is for — an explicit choice, never the production default.</p>
+</div>
+<div class="tabbed-block">
+<p>Then it wasn't in the artifact, which means it existed only as cluster state: hand-applied, or left over from an earlier version. The recovery is never "re-apply it by hand" (prune will eat it again, correctly); it's adding the manifest to the config repo so it becomes real. Treat every prune surprise as the system <em>finding</em> undeclared state for you.</p>
+</div>
+<div class="tabbed-block">
+<p><code>flux get kustomizations</code> shows <code>Ready: False</code> after a version bump. <code>wait: true</code> means "applied" isn't good enough; something (say, the new Traefik image) never went Ready. The <a href="../../day_one/reading_flux_status/">Day One diagnosis chain</a> applies: source first (is the artifact fetchable at that tag?), then the Kustomization's events, then the workload it's waiting on. Roll back by reverting the tag while you investigate: that's one diff, not an outage-length debugging session.</p>
+</div>
+</div>
+</div>
+<h2 id="practice-exercises">Practice Exercises<a class="headerlink" href="#practice-exercises" title="Link to this section">🔗</a></h2>
+<details class="question">
+<summary>Exercise 1: The Friday Rollback</summary>
+<p>The <code>v1.5.0</code> artifact shipped a Traefik flag typo; routing is degraded in production. Walk the exact rollback: what changes, where, and what do you explicitly <em>not</em> do?</p>
+<details class="tip">
+<summary>Solution</summary>
+<p>One diff: in the cluster's config, change the <code>OCIRepository</code>'s <code>ref.tag</code> from <code>v1.5.0</code> back to <code>v1.4.2</code> (the last known-good version) and merge. Flux fetches the old artifact — immutable, byte-identical to what ran yesterday — and reconciles the cluster back to it, prune and health checks included. What you don't do: <code>kubectl edit</code> the Deployment to fix the flag (drift, reverted in minutes, invisible forever), re-push a "fixed" artifact under the <em>same</em> <code>v1.5.0</code> tag (tags are immutable promises; the fix is <code>v1.5.1</code>), or debug live under pressure when a one-line revert restores service first.</p>
+</details>
+</details>
+<details class="question">
+<summary>Exercise 2: The Rebuild Test</summary>
+<p>Your cluster is unrecoverable — storage gone, control plane toast. You provision a fresh one. List everything required to get the full edge stack back, and name what this test <em>proves</em> about the rule.</p>
+<details class="tip">
+<summary>Solution</summary>
+<p>Three things: a cluster running Flux, the bootstrap config (the <code>OCIRepository</code> + <code>Kustomization</code> pair, itself in Git), and network reach to the registry holding <code>platform-config:v1.4.2</code>. That's the complete list: Traefik, its GatewayClass and Gateway, cert-manager and its issuers, external-dns and its ownership stamps all reconverge without a human recalling a single step. The test proves the rule by contrapositive: anything that <em>doesn't</em> come back was never in the artifact, hand-applied state the old cluster was silently depending on. A platform that fears this test has drift; a platform built this way treats it as a routine drill.</p>
+</details>
+</details>
+<details class="question">
+<summary>Exercise 3: Publish vs. Deploy</summary>
+<p>You merge a change adding a new <code>--domain-filter</code> to external-dns. CI mints <code>platform-config:v1.5.0</code>. Ten minutes later a teammate asks, "is that live in prod?" Walk the precise answer, and explain why the gap between the two acts is a feature.</p>
+<details class="tip">
+<summary>Solution</summary>
+<p>The answer is a lookup, not a guess: check prod's pinned tag. <code>v1.5.0</code> existing in the registry means the change is <strong>published</strong>: reviewable, pullable, running nowhere. It's <strong>deployed</strong> only when someone changes prod's <code>OCIRepository</code> to <code>ref.tag: v1.5.0</code> and merges that. The gap is where deliberateness lives: staging can run <code>v1.5.0</code> for a day first, or the prod bump can wait for a change window, a second set of eyes, or a different role entirely (in regulated shops, the person who writes the change and the person who promotes it to prod are deliberately not the same person). Collapsing publish-and-deploy into one act is how "it just went straight to prod" stories start.</p>
+</details>
+</details>
+<h2 id="quick-recap">Quick Recap<a class="headerlink" href="#quick-recap" title="Link to this section">🔗</a></h2>
+<table>
+<thead>
+<tr>
+<th>Concept</th>
+<th>What to Know</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>The rule</strong></td>
+<td>If it isn't in the artifact, it doesn't exist, and prune enforces it</td>
+</tr>
+<tr>
+<td><strong>The chain</strong></td>
+<td>Config repo → CI → OCI artifact → <code>OCIRepository</code> → <code>Kustomization</code> → cluster</td>
+</tr>
+<tr>
+<td><strong>Self-contained artifacts</strong></td>
+<td>Vendor upstream CRDs/manifests at pinned versions; never fetch at deploy time</td>
+</tr>
+<tr>
+<td><strong>No secrets in artifacts</strong></td>
+<td>Credentials arrive via their own channel (External Secrets Operator); artifacts reference names</td>
+</tr>
+<tr>
+<td><strong>Exact pins in prod</strong></td>
+<td><code>ref.tag: v1.4.2</code>; changing that line <em>is</em> the deploy; ranges are for dev at most</td>
+</tr>
+<tr>
+<td><strong><code>prune</code> + <code>wait</code></strong></td>
+<td>The artifact is an allow-list of what may exist; health, not just "applied"</td>
+</tr>
+<tr>
+<td><strong>Drift</strong></td>
+<td>Reverted on the next reconcile; the feature that keeps cluster and repo truthful</td>
+</tr>
+<tr>
+<td><strong>Publish ≠ deploy</strong></td>
+<td>CI minting a version and a cluster adopting it are separate, deliberate acts</td>
+</tr>
+<tr>
+<td><strong>Imperative commands</strong></td>
+<td>Experimentation only — platforms are reconciled, never typed</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="whats-next">What's Next?<a class="headerlink" href="#whats-next" title="Link to this section">🔗</a></h2>
+<p>The pathway's edge stack now ships itself: <a href="https://k8s.bradpenney.io/efficiency/networking/gateway_api/">the front door</a>, <a href="https://k8s.bradpenney.io/efficiency/networking/cert_manager/">its certificates</a>, and <a href="https://k8s.bradpenney.io/efficiency/networking/external_dns/">its DNS records</a> all reconciled from one versioned artifact, with <code>git merge</code> as the only imperative act left in the system. If the Flux resources here felt like review, <a href="../../day_one/overview/">Day One</a> walks their anatomy; from here, this site goes deeper into running Flux itself as a platform.</p>
+<h2 id="further-reading">Further Reading<a class="headerlink" href="#further-reading" title="Link to this section">🔗</a></h2>
+<h3 id="official-documentation">Official Documentation<a class="headerlink" href="#official-documentation" title="Link to this section">🔗</a></h3>
+<ul>
+<li><a href="https://fluxcd.io/flux/components/source/ocirepositories/">Flux: OCIRepository</a> - The source resource, including tag pinning and semver ranges</li>
+<li><a href="https://fluxcd.io/flux/components/kustomize/kustomizations/">Flux: Kustomization</a> - Prune, wait, health checks, and dependency ordering</li>
+<li><a href="https://fluxcd.io/flux/cheatsheets/oci-artifacts/">Flux: OCI artifacts cheatsheet</a> - <code>flux push artifact</code> and friends</li>
+</ul>
+<h3 id="related-articles">Related Articles<a class="headerlink" href="#related-articles" title="Link to this section">🔗</a></h3>
+<ul>
+<li><a href="../../day_one/your_flux_workflow/">Your Flux Workflow</a> - Why delivery runs on OCI artifacts, from the developer's seat</li>
+<li><a href="../../day_one/flux_resources/">Flux Resources Explained</a> - The anatomy of the resources this article writes</li>
+<li><a href="../../day_one/reading_flux_status/">Reading Flux Status</a> - The diagnosis chain when reconciliation goes sideways</li>
+</ul>
+<h3 id="on-the-kubernetes-site">On the Kubernetes Site<a class="headerlink" href="#on-the-kubernetes-site" title="Link to this section">🔗</a></h3>
+<ul>
+<li><a href="https://k8s.bradpenney.io/efficiency/networking/gateway_api/">Gateway API with Traefik (k8s.bradpenney.io)</a> - The <code>platform/traefik</code> directory this artifact delivers</li>
+<li><a href="https://k8s.bradpenney.io/efficiency/networking/external_dns/">Pointing Your Domain at the Cluster (k8s.bradpenney.io)</a> - The external-dns flags declared in <code>platform/external-dns</code></li>
+</ul>
+
+
+
+
+
+
+
+  
+  
+
+
+
+  
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-coffee">
+      <a
+        href="https://buymeacoffee.com/brad.penney"
+        target="_blank"
+        rel="noopener"
+        class="md-footer-coffee__link"
+      >
+        <span>Enjoying this? Buy me a coffee</span>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M2 21h18v-2H2M20 8h-2V5h2m0-2H4v10a4 4 0 0 0 4 4h6a4 4 0 0 0 4-4v-3h2a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2"/></svg>
+      </a>
+    </div>
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; Brad Penney — <a href="#__consent">Change cookie settings</a>
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/bradpenney" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://linkedin.com/in/bradpenney" target="_blank" rel="noopener" title="linkedin.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M416 32H31.9C14.3 32 0 46.5 0 64.3v383.4C0 465.5 14.3 480 31.9 480H416c17.6 0 32-14.5 32-32.3V64.3c0-17.8-14.4-32.3-32-32.3M135.4 416H69V202.2h66.5V416zM102.2 96a38.5 38.5 0 1 1 0 77 38.5 38.5 0 1 1 0-77m282.1 320h-66.4V312c0-24.8-.5-56.7-34.5-56.7-34.6 0-39.9 27-39.9 54.9V416h-66.4V202.2h63.7v29.2h.9c8.9-16.8 30.6-34.5 62.9-34.5 67.2 0 79.7 44.3 79.7 101.9z"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://bradpenney.io" target="_blank" rel="noopener" title="bradpenney.io" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M351.9 280H161c2.9 64.5 17.2 123.9 37.5 167.4 11.4 24.5 23.7 41.8 35.1 52.4 11.2 10.5 18.9 12.2 22.9 12.2s11.7-1.7 22.9-12.2c11.4-10.6 23.7-28 35.1-52.4 20.3-43.5 34.6-102.9 37.5-167.4zm-191-48h190.9c-2.8-64.5-17.1-123.9-37.4-167.4-11.4-24.4-23.7-41.8-35.1-52.4C268.1 1.7 260.4 0 256.4 0s-11.7 1.7-22.9 12.2c-11.4 10.6-23.7 28-35.1 52.4-20.3 43.5-34.6 102.9-37.5 167.4m-48 0c3.5-85.6 25.6-165.1 57.9-217.3C78.7 47.3 10.9 131.2 1.5 232zM1.5 280c9.4 100.8 77.2 184.7 169.3 217.3-32.3-52.2-54.4-131.7-57.9-217.3zm398.4 0c-3.5 85.6-25.6 165.1-57.9 217.3 92.1-32.7 159.9-116.5 169.3-217.3zm111.4-48C501.9 131.2 434.1 47.3 342 14.7c32.3 52.2 54.4 131.7 57.9 217.3z"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://gitops.bradpenney.io/feed_rss_created.xml" target="_blank" rel="noopener" title="gitops.bradpenney.io" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M0 64c0-17.7 14.3-32 32-32 229.8 0 416 186.2 416 416 0 17.7-14.3 32-32 32s-32-14.3-32-32C384 253.6 226.4 96 32 96 14.3 96 0 81.7 0 64m0 352a64 64 0 1 1 128 0 64 64 0 1 1-128 0m32-256c159.1 0 288 128.9 288 288 0 17.7-14.3 32-32 32s-32-14.3-32-32c0-123.7-100.3-224-224-224-17.7 0-32-14.3-32-32s14.3-32 32-32"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+      <div class="md-consent" data-md-component="consent" id="__consent" hidden>
+        <div class="md-consent__overlay"></div>
+        <aside class="md-consent__inner">
+          <form class="md-consent__form md-grid md-typeset" name="consent">
+            
+
+
+
+<h4>Cookie consent</h4>
+<p>We use cookies to measure how effective our content is and whether you find what you're looking for. With your consent, you help make these learning sites better. You can change your choice at any time.</p>
+<input class="md-toggle" type="checkbox" id="__settings" >
+<div class="md-consent__settings">
+  <ul class="task-list">
+    
+    
+    
+      
+    
+    
+      
+        
+  
+  
+    
+    
+  
+  <li class="task-list-item">
+    <label class="task-list-control">
+      <input type="checkbox" name="analytics" >
+      <span class="task-list-indicator"></span>
+      Google Analytics
+    </label>
+  </li>
+
+      
+    
+  </ul>
+</div>
+<div class="md-consent__controls">
+  
+    
+      <button class="md-button md-button--primary">Accept</button>
+    
+    
+    
+  
+    
+    
+      <button type="reset" class="md-button md-button--primary">Reject</button>
+    
+    
+  
+    
+    
+    
+      <label class="md-button" for="__settings">Manage settings</label>
+    
+  
+</div>
+          </form>
+        </aside>
+      </div>
+      <script>var consent=__md_get("__consent");if(consent)for(var input of document.forms.consent.elements)input.name&&(input.checked=consent[input.name]||!1);else"file:"!==location.protocol&&setTimeout((function(){document.querySelector("[data-md-component=consent]").hidden=!1}),250);var form=document.forms.consent;for(var action of["submit","reset"])form.addEventListener(action,(function(e){if(e.preventDefault(),"reset"===e.type)for(var n of document.forms.consent.elements)n.name&&(n.checked=!1);__md_set("__consent",Object.fromEntries(Array.from(new FormData(form).keys()).map((function(e){return[e,!0]})))),location.hash="",location.reload()}))</script>
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.code.annotate", "content.code.copy", "content.tabs.link", "content.code.highlight", "content.tooltips", "content.code.mermaid"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
