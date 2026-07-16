@@ -34,9 +34,9 @@ Start where you are. The tiers build in order, but jump to whatever you need.
 
     You're responsible for setting up or maintaining a FluxCD deployment. You know Kubernetes, understand Helm, and now you need to wire it all together with GitOps.
 
-    **Essentials covers installing, bootstrapping, and the core Flux building blocks.**
+    **Live now:** deploying real platform services (Traefik, cert-manager, external-dns) as a versioned OCI artifact. Installing and bootstrapping Flux itself is still coming.
 
-    *Coming soon*
+    [:octicons-arrow-right-16: Deploying Platform Services with Flux](essentials/deploying_the_edge_stack.md)
 
 -   :material-lightning-bolt: **Efficiency — Platform Engineers Going Deeper**
 

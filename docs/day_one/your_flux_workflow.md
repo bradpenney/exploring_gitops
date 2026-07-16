@@ -97,6 +97,9 @@ Two repos, two pipelines, two artifacts — both landing in the same registry:
 - **The container image** — built from your **application repo**, versioned on its own track (say `v4.7.0`)
 - **The OCI manifest artifact** — built from your **GitOps config repo**, versioned separately (say `v1.2.3`). The manifests inside declare which image tag to run — `v4.7.0` here. **This artifact tag, not the image tag, is what Flux watches.**
 
+!!! info "What's Actually Inside 'CI Builds Image'"
+    This article treats the image build as a black box on purpose — it's a separate concern from the GitOps pipeline itself. If you want the real mechanics behind that one diagram box (writing the Dockerfile, choosing a base image, `docker build`, tagging, pushing to a registry), [Exploring Containers](https://containers.bradpenney.io) covers it end to end, from [Writing Your First Dockerfile](https://containers.bradpenney.io/day_one/app/first_dockerfile/) through [Sharing It With Your Team](https://containers.bradpenney.io/day_one/app/sharing_with_your_team/) — the manual version of the exact push your CI pipeline automates here.
+
 Once both are in the registry, the second half takes over — Flux reconciles the cluster from the OCI manifest artifact:
 
 ```mermaid
@@ -275,6 +278,7 @@ You understand how your changes flow from code to cluster. The next question is:
 
 ### Related Learning
 
+- [Sharing It With Your Team](https://containers.bradpenney.io/day_one/app/sharing_with_your_team/) — the manual `docker build` / `docker push` that "CI builds image" automates in this article
 - [Essential kubectl Commands](https://k8s.bradpenney.io/day_one/kubectl/commands/) — `kubectl get` and `kubectl describe` for verifying changes applied after a reconciliation
 - [Your First Helm Deployment](https://k8s.bradpenney.io/day_one/helm/first_deploy/) — New to Helm? Helm charts can also be packaged and delivered as OCI artifacts
 
