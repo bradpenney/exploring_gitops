@@ -231,6 +231,8 @@ One more distinction the versioned artifact makes possible: **publishing and dep
 
 The pathway's edge stack now ships itself: [the front door](https://k8s.bradpenney.io/efficiency/networking/gateway_api/), [its certificates](https://k8s.bradpenney.io/efficiency/networking/cert_manager/), and [its DNS records](https://k8s.bradpenney.io/efficiency/networking/external_dns/) all reconciled from one versioned artifact, with `git merge` as the only imperative act left in the system. If the Flux resources here felt like review, [Day One](../day_one/overview.md) walks their anatomy; from here, this site goes deeper into running Flux itself as a platform.
 
+That's the whole free route, start to finish. What's left is what production actually demands once real strangers can reach this address — *(Mastery — coming soon)* rate limits, WAFs, and hardening the public edge.
+
 ## Further Reading
 
 ### Official Documentation
