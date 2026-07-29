@@ -7,13 +7,13 @@ description: "How enterprise GitOps works: your CI pipeline builds a versioned O
 # Your Flux Workflow
 
 !!! tip "Part of Day One: Understanding GitOps"
-    Before reading this article, make sure you've read [What Is GitOps?](what_is_gitops.md). This article builds directly on the reconciliation model explained there.
+    Before reading this article, make sure you've read [What Is GitOps?](what_is_gitops.md). This article builds directly on the reconciliation model explained there. It's also a step in the [How Modern Software Really Runs on a CPU](https://bradpenney.io/pathways/cpu-to-cluster) pathway on [bradpenney.io](https://bradpenney.io).
 
 You merged your PR, a release was cut, and CI ran. Now you're wondering: *did it actually deploy?*
 
 In enterprise GitOps, the answer to that question is not "Flux checked GitHub and applied your YAML." It's something more robust than that.
 
-!!! info "What You'll Learn"
+!!! abstract "What You'll Learn"
     - Why enterprise GitOps uses OCI artifacts, not direct Git polling
     - The full pipeline from your code commit to a running deployment
     - What your role as a developer actually is (smaller than you think)
@@ -97,7 +97,7 @@ Two repos, two pipelines, two artifacts — both landing in the same registry:
 - **The container image** — built from your **application repo**, versioned on its own track (say `v4.7.0`)
 - **The OCI manifest artifact** — built from your **GitOps config repo**, versioned separately (say `v1.2.3`). The manifests inside declare which image tag to run — `v4.7.0` here. **This artifact tag, not the image tag, is what Flux watches.**
 
-!!! info "What's Actually Inside 'CI Builds Image'"
+!!! question "What's Actually Inside 'CI Builds Image'"
     This article treats the image build as a black box on purpose — it's a separate concern from the GitOps pipeline itself. If you want the real mechanics behind that one diagram box (writing the Dockerfile, choosing a base image, `docker build`, tagging, pushing to a registry), [Exploring Containers](https://containers.bradpenney.io) covers it end to end, from [Writing Your First Dockerfile](https://containers.bradpenney.io/day_one/app/first_dockerfile/) through [Sharing It With Your Team](https://containers.bradpenney.io/day_one/app/sharing_with_your_team/) — the manual version of the exact push your CI pipeline automates here.
 
 Once both are in the registry, the second half takes over — Flux reconciles the cluster from the OCI manifest artifact:
@@ -174,8 +174,10 @@ You do not:
 
 What you touch in the registry is narrow: you push new OCI images into the prod folder, nothing more. **Your job ends when the config-repo change is merged and the artifact lands in the registry.**
 
-!!! note "Who Ships It to Production? (Segregation of Duties)"
+!!! warning "Who Ships It to Production? (Segregation of Duties)"
     Publishing an artifact and deploying it are two different rights. Your release pushes a new OCI image into the production folder of the registry — but you hold **push-only** access there. Advancing the version production's Flux actually deploys is the **SRE's** (site reliability engineer's) job. The developer who wrote the change can make the new version *available*, but doesn't *ship* it. That split — publish vs. deploy — is **segregation of duties**: a standard enterprise control, and often a compliance requirement.
+
+That split answers *who* ships it. A separate, equally practical question is *where the manifests live* in the first place.
 
 !!! tip "Where Do the Manifests Live?"
     We recommend **two repositories**: your **application repo** (the code) and a separate **GitOps config repo** (your Kubernetes manifests and Flux definitions). Keeping them apart means one config repo can bundle the manifests for *several* microservices, and config changes follow their own PR and release flow — independent of any single app's code. Releasing from the config repo is what produces the next versioned OCI manifest artifact.
@@ -263,6 +265,8 @@ Either way: you don't reach for `kubectl rollout undo`. The artifact registry is
 You understand how your changes flow from code to cluster. The next question is: **how do you verify it worked?**
 
 **[Reading Flux Status](reading_flux_status.md)** covers the `kubectl` commands that tell you whether Flux reconciled your OCI artifact successfully — and how to interpret the errors when it didn't.
+
+If you're following the [How Modern Software Really Runs on a CPU](https://bradpenney.io/pathways/cpu-to-cluster) pathway on [bradpenney.io](https://bradpenney.io), this closes the loop from CPU instruction to declared cluster state. What's left is what happens when the declared state doesn't behave the way the theory says it should — *(Mastery — coming soon)* diagnosing CPU throttling and OOMKilled Pods from first principles.
 
 ---
 
