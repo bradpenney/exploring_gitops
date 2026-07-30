@@ -36,7 +36,7 @@ Start where you are. The tiers build in order, but jump to whatever you need.
 
     **Live now:** deploying real platform services (Traefik, cert-manager, external-dns) as a versioned OCI artifact. Installing and bootstrapping Flux itself is still coming.
 
-    [:octicons-arrow-right-16: Deploying Platform Services with Flux](essentials/deploying_the_edge_stack.md)
+    [:octicons-arrow-right-16: Start with Essentials](essentials/overview.md)
 
 -   :material-lightning-bolt: **Efficiency — Platform Engineers Going Deeper**
 

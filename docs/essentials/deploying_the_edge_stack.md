@@ -1,6 +1,6 @@
 ---
 date: "2026-07-09 12:00"
-title: "Deploying Platform Services with Flux and OCI Artifacts"
+title: "Deploy Traefik & cert-manager with Flux OCI Artifacts"
 description: "Your edge stack — Traefik, cert-manager, external-dns — deployed with zero manual commands: a versioned OCI artifact, a Flux Kustomization, and nothing else."
 ---
 

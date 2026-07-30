@@ -144,6 +144,7 @@ nav:
       - Flux Resources Explained: day_one/flux_resources.md
 
   - 📦 Essentials:
+      - Overview: essentials/overview.md
       - Deploying Platform Services with Flux and OCI Artifacts: essentials/deploying_the_edge_stack.md
 
   # EDITORIAL NOTE: Content below is commented out pending quality review.
