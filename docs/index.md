@@ -67,6 +67,14 @@ FluxCD is a [CNCF Graduated project](https://www.cncf.io/projects/flux/) — the
 !!! info "GitOps Is More Than FluxCD"
     This site covers FluxCD exclusively, but Flux isn't the only GitOps tool. [ArgoCD](https://argo-cd.readthedocs.io/en/stable/) is a direct competitor — both are CNCF projects implementing the same GitOps principles, and the mental model transfers between them. The specific resources, commands, and workflows differ significantly. Flux earns its place for platform teams who want tight Kubernetes-native integration and minimal operational overhead; ArgoCD appeals to teams that want a built-in UI and a more opinionated workflow. This site won't cover ArgoCD.
 
+## Part of the BradPenney.io Network
+
+This site is part of a family of progressive technical learning resources:
+
+- [Exploring Kubernetes](https://k8s.bradpenney.io) — the cluster Flux reconciles against
+- [Exploring Containers](https://containers.bradpenney.io) — the images your GitOps pipeline actually ships
+- [Exploring Linux](https://linux.bradpenney.io) — the systems your CI runs on to build and package artifacts
+
 ## Subscribe by RSS
 
 New articles publish straight to the [RSS feed](https://gitops.bradpenney.io/feed_rss_created.xml) — no algorithm, no email required.
