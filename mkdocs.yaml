@@ -82,6 +82,7 @@ plugins:
         - "mastery/*"
   - rss:
       match_path: ".*"
+      pretty_print: true
       image: https://gitops.bradpenney.io/images/exploring_gitops.png
       abstract_chars_count: 160
       length: 20
