@@ -6,8 +6,33 @@ description: "How enterprise GitOps works: your CI pipeline builds a versioned O
 
 # Your Flux Workflow
 
-!!! tip "Part of Day One: Understanding GitOps"
-    Before reading this article, make sure you've read [What Is GitOps?](what_is_gitops.md). This article builds directly on the reconciliation model explained there. It's also a step in the [How Modern Software Really Runs on a CPU](https://bradpenney.io/pathways/cpu-to-cluster) pathway on [bradpenney.io](https://bradpenney.io).
+<!-- PATHWAY_ROADMAP:START -->
+<div class="pathway-pills" markdown>
+:material-map-marker-path: <span class="pathway-pills__label">Part of a deep dive and a pathway:</span> [Understanding GitOps](what_is_gitops.md){: .pathway-pill } [How Modern Software Really Runs on a CPU](https://bradpenney.io/pathways/cpu-to-cluster){: .pathway-pill }
+</div>
+
+??? abstract ":material-map-legend: Consult the map"
+
+    <div class="grid cards two-col" markdown>
+
+    -   :material-sync: __Understanding GitOps__ — step 2 of 4
+
+        ---
+
+        ← [What Is GitOps?](what_is_gitops.md) · **you are here** · [Reading Flux Status](reading_flux_status.md) →
+
+        [Start the deep dive →](what_is_gitops.md)
+
+    -   :material-chip: __How Modern Software Really Runs on a CPU__ — step 16 of 17
+
+        ---
+
+        ← [Diagnosing Pod Failure States](https://k8s.bradpenney.io/essentials/pod_failure_states/) · **you are here** · *Diagnosing CPU Throttling and OOMKills in Production (coming soon)* →
+
+        [Start the pathway →](https://bradpenney.io/pathways/cpu-to-cluster)
+
+    </div>
+<!-- PATHWAY_ROADMAP:END -->
 
 You merged your PR, a release was cut, and CI ran. Now you're wondering: *did it actually deploy?*
 

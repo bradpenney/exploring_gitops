@@ -6,8 +6,25 @@ description: "A plain-language reference to the Flux resources developers meet i
 
 # Flux Resources: What You'll See in the Cluster
 
-!!! tip "Part of Day One: Understanding GitOps"
-    This article follows [Reading Flux Status](reading_flux_status.md). You've run `kubectl get` commands and seen resources like `OCIRepository` and `Kustomization` — this explains what they actually are.
+<!-- PATHWAY_ROADMAP:START -->
+<div class="pathway-pills" markdown>
+:material-map-marker-path: <span class="pathway-pills__label">Part of a deep dive:</span> [Understanding GitOps](what_is_gitops.md){: .pathway-pill }
+</div>
+
+??? abstract ":material-map-legend: Consult the map"
+
+    <div class="grid cards" markdown>
+
+    -   :material-sync: __Understanding GitOps__ — step 4 of 4
+
+        ---
+
+        ← [Reading Flux Status](reading_flux_status.md) · **you are here** · *(last step)* →
+
+        [Start the deep dive →](what_is_gitops.md)
+
+    </div>
+<!-- PATHWAY_ROADMAP:END -->
 
 When you run [`kubectl get`](https://k8s.bradpenney.io/day_one/kubectl/commands/) in a Flux-managed cluster, you'll see resource types that don't exist in a standard Kubernetes installation. These are Flux's custom resources — each one is a declaration of something Flux should be doing continuously.
 

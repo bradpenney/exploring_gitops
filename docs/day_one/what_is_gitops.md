@@ -6,8 +6,25 @@ description: "GitOps explained from first principles — what problem it solves,
 
 # What Is GitOps?
 
-!!! tip "Part of Day One: Understanding GitOps"
-    This is the foundation. Before understanding [FluxCD](https://fluxcd.io/flux/), Kustomizations, or HelmReleases, you need to understand why GitOps exists and what problem it's actually solving.
+<!-- PATHWAY_ROADMAP:START -->
+<div class="pathway-pills" markdown>
+:material-map-marker-path: <span class="pathway-pills__label">Part of a deep dive:</span> [Understanding GitOps](what_is_gitops.md){: .pathway-pill }
+</div>
+
+??? abstract ":material-map-legend: Consult the map"
+
+    <div class="grid cards" markdown>
+
+    -   :material-sync: __Understanding GitOps__ — step 1 of 4
+
+        ---
+
+        ← *(first step)* · **you are here** · [Your Flux Workflow](your_flux_workflow.md) →
+
+        [Start the deep dive →](what_is_gitops.md)
+
+    </div>
+<!-- PATHWAY_ROADMAP:END -->
 
 Being told a team uses GitOps is a common onboarding moment — someone mentions Flux, deployments change shape, and the reason why usually stays unexplained. This article answers the "why" — which makes everything else click into place.
 

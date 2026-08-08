@@ -70,6 +70,7 @@ theme:
     - content.code.highlight
     - content.tooltips
     - content.code.mermaid
+    - navigation.path
 
 plugins:
   - search

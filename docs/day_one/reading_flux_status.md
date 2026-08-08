@@ -6,8 +6,25 @@ description: "The kubectl commands that tell you whether Flux reconciled your ch
 
 # Reading Flux Status
 
-!!! tip "Part of Day One: Understanding GitOps"
-    This article follows [Your Flux Workflow](your_flux_workflow.md). You've merged a PR and it's been released as a new artifact — now you need to know if Flux picked it up and applied it.
+<!-- PATHWAY_ROADMAP:START -->
+<div class="pathway-pills" markdown>
+:material-map-marker-path: <span class="pathway-pills__label">Part of a deep dive:</span> [Understanding GitOps](what_is_gitops.md){: .pathway-pill }
+</div>
+
+??? abstract ":material-map-legend: Consult the map"
+
+    <div class="grid cards" markdown>
+
+    -   :material-sync: __Understanding GitOps__ — step 3 of 4
+
+        ---
+
+        ← [Your Flux Workflow](your_flux_workflow.md) · **you are here** · [Flux Resources Explained](flux_resources.md) →
+
+        [Start the deep dive →](what_is_gitops.md)
+
+    </div>
+<!-- PATHWAY_ROADMAP:END -->
 
 You merged the PR, a release was cut, and CI pushed a new artifact ten minutes ago. In **dev or staging**, where Flux tracks a semver range, the cluster should now be running it automatically. **Production is different** — it pins a specific version and only moves when someone promotes it, so a fresh artifact won't deploy there on its own. Either way, the question is the same: **did Flux reconcile the artifact it's tracking, and did it succeed?**
 
@@ -60,7 +77,7 @@ These commands cover the majority of what you'll need day-to-day. Flux resources
 
     Use whichever you have — `kubectl` always works.
 
-!!! note "You May Not Have Access"
+!!! info "You May Not Have Access"
     Your platform team may use standard Kubernetes RBAC to limit who can read Flux resources — especially in the `flux-system` namespace. If a `kubectl get` here returns a `Forbidden` error, that's expected, not broken: ask your platform team for read access, or for the namespace where your app's resources live.
 
 <div class="grid cards" markdown>

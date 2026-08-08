@@ -6,8 +6,28 @@ description: "Your edge stack — Traefik, cert-manager, external-dns — deploy
 
 # Deploying Platform Services with Flux and OCI Artifacts
 
-!!! tip "Part of a Learning Path"
-    This article is a step in the [Put Your Kubernetes App on the Internet](https://bradpenney.io/pathways/cluster-to-internet) pathway on [bradpenney.io](https://bradpenney.io). It assumes a cluster already running Flux and the delivery model from [Day One](../day_one/overview.md) — [what GitOps is](../day_one/what_is_gitops.md) and [why everything here ships as OCI artifacts](../day_one/your_flux_workflow.md).
+<!-- PATHWAY_ROADMAP:START -->
+<div class="pathway-pills" markdown>
+:material-map-marker-path: <span class="pathway-pills__label">Part of a pathway:</span> [Put Your Kubernetes App on the Internet](https://bradpenney.io/pathways/cluster-to-internet){: .pathway-pill }
+</div>
+
+??? abstract ":material-map-legend: Consult the map"
+
+    <div class="grid cards" markdown>
+
+    -   :material-server-network: __Put Your Kubernetes App on the Internet__ — step 12 of 13
+
+        ---
+
+        ← [Pointing Your Domain at the Cluster with external-dns](https://k8s.bradpenney.io/efficiency/networking/external_dns/) · **you are here** · *Hardening the Public Edge (coming soon)* →
+
+        [Start the pathway →](https://bradpenney.io/pathways/cluster-to-internet)
+
+    </div>
+<!-- PATHWAY_ROADMAP:END -->
+
+!!! tip "Prerequisites"
+    It assumes a cluster already running Flux and the delivery model from [Day One](../day_one/overview.md) — [what GitOps is](../day_one/what_is_gitops.md) and [why everything here ships as OCI artifacts](../day_one/your_flux_workflow.md).
 
 The edge stack is written. Sitting in a directory you're proud of are the manifests for [Traefik and its Gateway](https://k8s.bradpenney.io/efficiency/networking/gateway_api/), [cert-manager](https://k8s.bradpenney.io/efficiency/networking/cert_manager/), and [external-dns](https://k8s.bradpenney.io/efficiency/networking/external_dns/) — the machinery that puts apps on the internet. One question left: how does any of it reach the cluster? Your fingers already know the tempting answer, and it's three keystrokes into being wrong.
 
